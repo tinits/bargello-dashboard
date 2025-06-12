@@ -3,20 +3,35 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dashboard Taller Bargello Tinicrafts</title>
+    <title>Dashboard Taller de Bordado Bargello Tinicrafts</title>
+    
+    <!-- Estilos CSS -->
     <link rel="stylesheet" href="style.css">
-    <script src="https://cdn.jsdelivr.net/npm/papaparse@5.4.1/papaparse.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    
+    <!-- Librerías externas -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.3.0/dist/chart.umd.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/marked@5.1.1/marked.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/papaparse@5.4.1/papaparse.min.js"></script>
+    
+    <!-- Fuentes -->
+    <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
 </head>
 <body>
     <!-- Header -->
     <header class="header">
-        <div class="container flex justify-between items-center">
-            <h1 class="header__title">Taller Bargello Tinicrafts</h1>
-            <div class="header__status">
-                <div class="health-status" id="healthStatus">
-                    <span class="status status--info">Registrar estado de salud</span>
+        <div class="container">
+            <div class="flex justify-between items-center">
+                <h1 class="header__title">Taller de Bordado Bargello Tinicrafts</h1>
+                <div class="header__status">
+                    <button id="healthRegisterBtn" class="btn btn--primary btn--sm">
+                        <span class="material-icons">favorite</span> Registrar Salud
+                    </button>
+                    <div class="health-status" id="currentHealthStatus">
+                        <span id="healthStatusIcon" class="material-icons">sentiment_satisfied</span>
+                        <span id="healthStatusText">Sin registro hoy</span>
+                    </div>
                 </div>
             </div>
         </div>
@@ -25,167 +40,206 @@
     <!-- Main Layout -->
     <div class="main-layout">
         <!-- Sidebar -->
-        <nav class="sidebar">
+        <aside class="sidebar">
             <div class="sidebar__header">
                 <h3>Navegación</h3>
             </div>
             <ul class="sidebar__menu">
                 <li class="sidebar__item">
-                    <button class="sidebar__link" data-view="dashboard">
-                        📊 Dashboard
+                    <button class="sidebar__link active" data-view="dashboard">
+                        <span class="material-icons">dashboard</span> Dashboard
                     </button>
                 </li>
                 <li class="sidebar__item">
                     <button class="sidebar__link" data-view="salud">
-                        ❤️ Salud & Bienestar
+                        <span class="material-icons">favorite</span> Salud y Bienestar
                     </button>
                 </li>
                 <li class="sidebar__item">
                     <button class="sidebar__link" data-view="tareas">
-                        ✅ Gestión de Tareas
+                        <span class="material-icons">assignment</span> Tareas
                     </button>
                 </li>
                 <li class="sidebar__item">
                     <button class="sidebar__link" data-view="timeline">
-                        📅 Timeline & Cronograma
+                        <span class="material-icons">timeline</span> Cronograma
                     </button>
                 </li>
                 <li class="sidebar__item">
                     <button class="sidebar__link" data-view="markdown">
-                        📝 Editor Markdown
+                        <span class="material-icons">description</span> Editor Markdown
                     </button>
                 </li>
                 <li class="sidebar__item">
                     <button class="sidebar__link" data-view="redes">
-                        📱 Redes Sociales
+                        <span class="material-icons">share</span> Redes Sociales
                     </button>
                 </li>
                 <li class="sidebar__item">
                     <button class="sidebar__link" data-view="datos">
-                        💾 Gestión de Datos
+                        <span class="material-icons">storage</span> Gestión de Datos
                     </button>
                 </li>
             </ul>
-        </nav>
+        </aside>
 
         <!-- Main Content -->
         <main class="main-content">
             <!-- Dashboard View -->
-            <div id="dashboard-view" class="view active">
+            <section id="dashboard-view" class="view active">
                 <div class="view__header">
                     <h2>Dashboard Principal</h2>
-                    <button class="btn btn--primary" id="healthRegisterBtn">
-                        Registrar Estado de Salud
-                    </button>
+                    <div class="view__actions">
+                        <button id="refreshDashboard" class="btn btn--secondary">
+                            <span class="material-icons">refresh</span> Actualizar
+                        </button>
+                    </div>
                 </div>
-                
+
                 <div class="dashboard-grid">
+                    <!-- Estado de Salud -->
                     <div class="card">
-                        <div class="card__body">
+                        <div class="card__header">
                             <h3>Estado de Salud Actual</h3>
-                            <div id="currentHealthStatus">
+                        </div>
+                        <div class="card__body">
+                            <div id="healthSummary">
                                 <p>No hay registro de hoy</p>
+                                <button class="btn btn--primary btn--sm" onclick="document.querySelector('[data-view=salud]').click()">
+                                    Registrar ahora
+                                </button>
                             </div>
                         </div>
                     </div>
-                    
+
+                    <!-- Capacidad de Trabajo -->
                     <div class="card">
-                        <div class="card__body">
+                        <div class="card__header">
                             <h3>Capacidad de Trabajo</h3>
+                        </div>
+                        <div class="card__body">
                             <div id="workCapacity">
                                 <p>Registra tu estado para calcular capacidad</p>
                             </div>
                         </div>
                     </div>
-                    
+
+                    <!-- Tareas Sugeridas -->
                     <div class="card">
-                        <div class="card__body">
+                        <div class="card__header">
                             <h3>Tareas Sugeridas</h3>
+                        </div>
+                        <div class="card__body">
                             <div id="suggestedTasks">
                                 <p>No hay sugerencias disponibles</p>
                             </div>
                         </div>
                     </div>
-                    
+
+                    <!-- Progreso de Módulos -->
                     <div class="card">
-                        <div class="card__body">
+                        <div class="card__header">
                             <h3>Progreso de Módulos</h3>
-                            <canvas id="progressChart" width="400" height="200"></canvas>
+                        </div>
+                        <div class="card__body">
+                            <canvas id="modulesProgressChart"></canvas>
                         </div>
                     </div>
                 </div>
-            </div>
+            </section>
 
-            <!-- Health View -->
-            <div id="salud-view" class="view">
+            <!-- Salud View -->
+            <section id="salud-view" class="view">
                 <div class="view__header">
                     <h2>Gestión de Salud y Bienestar</h2>
                 </div>
-                
+
                 <div class="health-section">
+                    <!-- Registro Diario -->
                     <div class="card">
-                        <div class="card__body">
+                        <div class="card__header">
                             <h3>Registro Diario</h3>
+                        </div>
+                        <div class="card__body">
                             <form id="healthForm" class="health-form">
                                 <div class="form-group">
-                                    <label class="form-label">Nivel de Dolor (1-10)</label>
-                                    <input type="range" id="dolorSlider" min="1" max="10" value="5" class="form-control">
-                                    <span id="dolorValue">5</span>
+                                    <label class="form-label" for="dolorSlider">Nivel de Dolor (1-10):</label>
+                                    <div class="flex items-center gap-8">
+                                        <input type="range" id="dolorSlider" min="1" max="10" value="5" class="form-control">
+                                        <span id="dolorValue">5</span>
+                                    </div>
                                 </div>
-                                
                                 <div class="form-group">
-                                    <label class="form-label">Nivel de Fatiga (1-10)</label>
-                                    <input type="range" id="fatigaSlider" min="1" max="10" value="5" class="form-control">
-                                    <span id="fatigaValue">5</span>
+                                    <label class="form-label" for="fatigaSlider">Nivel de Fatiga (1-10):</label>
+                                    <div class="flex items-center gap-8">
+                                        <input type="range" id="fatigaSlider" min="1" max="10" value="5" class="form-control">
+                                        <span id="fatigaValue">5</span>
+                                    </div>
                                 </div>
-                                
                                 <div class="form-group">
-                                    <label class="form-label">Calidad del Sueño (1-10)</label>
-                                    <input type="range" id="suenoSlider" min="1" max="10" value="7" class="form-control">
-                                    <span id="suenoValue">7</span>
+                                    <label class="form-label" for="suenoSlider">Calidad de Sueño (1-10):</label>
+                                    <div class="flex items-center gap-8">
+                                        <input type="range" id="suenoSlider" min="1" max="10" value="5" class="form-control">
+                                        <span id="suenoValue">5</span>
+                                    </div>
                                 </div>
-                                
                                 <button type="submit" class="btn btn--primary">Guardar Registro</button>
                             </form>
                         </div>
                     </div>
-                    
+
+                    <!-- Historial -->
                     <div class="card">
-                        <div class="card__body">
+                        <div class="card__header">
                             <h3>Historial (últimos 30 días)</h3>
-                            <canvas id="healthChart" width="400" height="200"></canvas>
+                        </div>
+                        <div class="card__body">
+                            <canvas id="healthHistoryChart"></canvas>
                         </div>
                     </div>
                 </div>
-            </div>
+            </section>
 
-            <!-- Tasks View -->
-            <div id="tareas-view" class="view">
+            <!-- Tareas View -->
+            <section id="tareas-view" class="view">
                 <div class="view__header">
                     <h2>Gestión de Tareas</h2>
                     <div class="view__actions">
-                        <button class="btn btn--secondary" id="addTaskBtn">Nueva Tarea</button>
-                        <button class="btn btn--outline" id="exportTasksBtn">Exportar CSV</button>
+                        <button id="addTaskBtn" class="btn btn--primary">
+                            <span class="material-icons">add</span> Nueva Tarea
+                        </button>
+                        <button id="exportTasksBtn" class="btn btn--secondary">
+                            <span class="material-icons">download</span> Exportar
+                        </button>
                     </div>
                 </div>
-                
+
                 <div class="tasks-filters">
                     <div class="filters-row">
-                        <input type="text" id="searchTasks" placeholder="Buscar tareas..." class="form-control">
-                        <select id="filterModule" class="form-control">
-                            <option value="">Todos los módulos</option>
-                        </select>
-                        <select id="filterStatus" class="form-control">
-                            <option value="">Todos los estados</option>
-                            <option value="pendiente">Pendiente</option>
-                            <option value="en progreso">En Progreso</option>
-                            <option value="completado">Completado</option>
-                        </select>
+                        <div class="form-group">
+                            <label class="form-label" for="searchTasks">Buscar:</label>
+                            <input type="text" id="searchTasks" class="form-control" placeholder="Buscar tareas...">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label" for="filterModule">Módulo:</label>
+                            <select id="filterModule" class="form-control">
+                                <option value="">Todos</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label" for="filterStatus">Estado:</label>
+                            <select id="filterStatus" class="form-control">
+                                <option value="">Todos</option>
+                                <option value="pendiente">Pendiente</option>
+                                <option value="en progreso">En Progreso</option>
+                                <option value="completado">Completado</option>
+                            </select>
+                        </div>
                     </div>
                 </div>
-                
+
                 <div class="tasks-table-container">
-                    <table class="tasks-table" id="tasksTable">
+                    <table class="tasks-table">
                         <thead>
                             <tr>
                                 <th>Nombre</th>
@@ -198,127 +252,145 @@
                             </tr>
                         </thead>
                         <tbody id="tasksTableBody">
+                            <!-- Tasks will be loaded here -->
                         </tbody>
                     </table>
                 </div>
-            </div>
+            </section>
 
             <!-- Timeline View -->
-            <div id="timeline-view" class="view">
+            <section id="timeline-view" class="view">
                 <div class="view__header">
                     <h2>Timeline y Cronograma</h2>
                 </div>
-                
+
                 <div class="timeline-container">
                     <div class="timeline-controls">
-                        <button class="btn btn--outline" id="prevWeek">← Semana Anterior</button>
-                        <span id="currentWeek">Semana Actual</span>
-                        <button class="btn btn--outline" id="nextWeek">Semana Siguiente →</button>
+                        <button id="prevWeek" class="btn btn--secondary">
+                            <span class="material-icons">chevron_left</span> Semana Anterior
+                        </button>
+                        <h3 id="currentWeekDisplay">Semana Actual</h3>
+                        <button id="nextWeek" class="btn btn--secondary">
+                            Semana Siguiente <span class="material-icons">chevron_right</span>
+                        </button>
                     </div>
-                    
+
                     <div class="timeline-grid" id="timelineGrid">
-                        <!-- Timeline content will be generated here -->
+                        <!-- Timeline days will be loaded here -->
                     </div>
                 </div>
-            </div>
+            </section>
 
-            <!-- Markdown Editor View -->
-            <div id="markdown-view" class="view">
+            <!-- Markdown View -->
+            <section id="markdown-view" class="view">
                 <div class="view__header">
                     <h2>Editor de Markdown</h2>
-                    <select id="mdFileSelect" class="form-control">
-                        <option value="">Seleccionar archivo...</option>
-                    </select>
+                    <div class="view__actions">
+                        <select id="mdFileSelect" class="form-control">
+                            <option value="">Seleccionar archivo...</option>
+                        </select>
+                        <button id="newMarkdownFile" class="btn btn--secondary">
+                            <span class="material-icons">add</span> Nuevo
+                        </button>
+                        <button id="saveMarkdown" class="btn btn--primary">
+                            <span class="material-icons">save</span> Guardar
+                        </button>
+                    </div>
                 </div>
-                
+
                 <div class="markdown-editor">
                     <div class="markdown-tabs">
-                        <button class="tab-btn active" data-tab="edit">Editar</button>
+                        <button class="tab-btn active" data-tab="editor">Editor</button>
                         <button class="tab-btn" data-tab="preview">Vista Previa</button>
                     </div>
-                    
                     <div class="markdown-content">
-                        <textarea id="markdownEditor" class="form-control" placeholder="Selecciona un archivo para editar..."></textarea>
+                        <textarea id="markdownEditor" placeholder="Escribe tu contenido en Markdown aquí..."></textarea>
                         <div id="markdownPreview" class="markdown-preview hidden"></div>
                     </div>
-                    
-                    <div class="markdown-actions">
-                        <button class="btn btn--primary" id="saveMarkdown">Guardar</button>
-                        <button class="btn btn--secondary" id="newMarkdownFile">Nuevo Archivo</button>
-                    </div>
                 </div>
-            </div>
+            </section>
 
-            <!-- Social Media View -->
-            <div class="social-config">
-    <h4>Configurar Redes Sociales</h4>
-    <form id="socialConfigForm">
-        <div class="form-group">
-            <label>Instagram Handle:</label>
-            <input type="text" id="instagramHandle" placeholder="@tunombre">
-        </div>
-        <div class="form-group">
-            <label>YouTube Canal:</label>
-            <input type="text" id="youtubeChannel" placeholder="Tu Canal">
-        </div>
-        <div class="form-group">
-            <label>Facebook Página:</label>
-            <input type="text" id="facebookPage" placeholder="Tu Página">
-        </div>
-        <div class="form-group">
-            <label>TikTok Handle:</label>
-            <input type="text" id="tiktokHandle" placeholder="@tunombre">
-        </div>
-        <button type="button" onclick="guardarConfigSocial()">Guardar Configuración</button>
-    </form>
-</div>
+            <!-- Redes Sociales View -->
+            <section id="redes-view" class="view">
+                <div class="view__header">
+                    <h2>Gestión de Redes Sociales</h2>
+                </div>
 
-                
-                <div class="social-suggestions">
-                    <div class="card">
-                        <div class="card__body">
-                            <h3>Sugerencias de Contenido</h3>
-                            <div id="contentSuggestions">
-                                <!-- Content suggestions will be generated here -->
+                <div class="card mb-8">
+                    <div class="card__header">
+                        <h3>Calendario de Contenido</h3>
+                    </div>
+                    <div class="card__body">
+                        <div class="social-calendar">
+                            <div class="calendar-grid" id="socialCalendar">
+                                <!-- Calendar days will be loaded here -->
                             </div>
                         </div>
                     </div>
                 </div>
-            </div>
 
-            <!-- Data Management View -->
-            <div id="datos-view" class="view">
+                <div class="card">
+                    <div class="card__header">
+                        <h3>Sugerencias de Contenido</h3>
+                    </div>
+                    <div class="card__body">
+                        <div class="social-suggestions" id="contentSuggestions">
+                            <!-- Content suggestions will be loaded here -->
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Datos View -->
+            <section id="datos-view" class="view">
                 <div class="view__header">
                     <h2>Gestión de Datos</h2>
                 </div>
-                
+
                 <div class="data-management">
+                    <!-- Importar/Exportar CSV -->
                     <div class="card">
-                        <div class="card__body">
+                        <div class="card__header">
                             <h3>Importar/Exportar CSV</h3>
+                        </div>
+                        <div class="card__body">
                             <div class="form-group">
-                                <label class="form-label">Cargar archivo CSV</label>
-                                <input type="file" id="csvFileInput" accept=".csv" class="form-control">
+                                <label class="form-label" for="csvFile">Cargar archivo CSV:</label>
+                                <input type="file" id="csvFile" class="form-control" accept=".csv">
                             </div>
-                            <div class="gap-8 flex">
-                                <button class="btn btn--primary" id="loadCSV">Cargar CSV</button>
-                                <button class="btn btn--secondary" id="exportCSV">Exportar CSV</button>
+                            <div class="flex gap-8 mt-8">
+                                <button id="loadCSV" class="btn btn--primary">
+                                    <span class="material-icons">upload</span> Cargar
+                                </button>
+                                <button id="exportCSV" class="btn btn--secondary">
+                                    <span class="material-icons">download</span> Exportar
+                                </button>
                             </div>
                         </div>
                     </div>
-                    
+
+                    <!-- Configuración de Respaldo -->
                     <div class="card">
-                        <div class="card__body">
+                        <div class="card__header">
                             <h3>Configuración de Respaldo</h3>
-                            <p>Última sincronización: <span id="lastSync">No disponible</span></p>
-                            <div class="gap-8 flex">
-                                <button class="btn btn--primary" id="syncData">Sincronizar Ahora</button>
-                                <button class="btn btn--outline" id="resetData">Resetear Datos</button>
+                        </div>
+                        <div class="card__body">
+                            <div class="form-group">
+                                <label class="form-label">Última sincronización:</label>
+                                <p id="lastSyncTime">No disponible</p>
+                            </div>
+                            <div class="flex gap-8">
+                                <button id="syncData" class="btn btn--primary">
+                                    <span class="material-icons">sync</span> Sincronizar Ahora
+                                </button>
+                                <button id="resetData" class="btn btn--secondary">
+                                    <span class="material-icons">delete</span> Resetear Datos
+                                </button>
                             </div>
                         </div>
                     </div>
                 </div>
-            </div>
+            </section>
         </main>
     </div>
 
@@ -327,90 +399,130 @@
         <div class="modal-content">
             <div class="modal-header">
                 <h3 id="taskModalTitle">Nueva Tarea</h3>
-                <button class="modal-close" id="closeTaskModal">&times;</button>
+                <button id="closeTaskModal" class="modal-close">&times;</button>
             </div>
             <div class="modal-body">
                 <form id="taskForm">
                     <div class="form-group">
-                        <label class="form-label">Nombre</label>
+                        <label class="form-label" for="taskName">Nombre:</label>
                         <input type="text" id="taskName" class="form-control" required>
                     </div>
-                    
                     <div class="form-group">
-                        <label class="form-label">Descripción</label>
+                        <label class="form-label" for="taskDescription">Descripción:</label>
                         <textarea id="taskDescription" class="form-control" rows="3"></textarea>
                     </div>
-                    
-                    <div class="form-group">
-                        <label class="form-label">Módulo</label>
-                        <input type="text" id="taskModule" class="form-control">
+                    <div class="flex gap-16">
+                        <div class="form-group" style="flex: 1;">
+                            <label class="form-label" for="taskModule">Módulo:</label>
+                            <select id="taskModule" class="form-control">
+                                <option value="0">Módulo 0</option>
+                                <option value="1">Módulo 1</option>
+                                <option value="2">Módulo 2</option>
+                                <option value="3">Módulo 3</option>
+                                <option value="4">Módulo 4</option>
+                                <option value="5">Módulo 5</option>
+                                <option value="6">Módulo 6</option>
+                                <option value="7">Módulo 7</option>
+                                <option value="8">Módulo 8</option>
+                                <option value="9">Módulo 9</option>
+                                <option value="10">Módulo 10</option>
+                                <option value="11">Módulo 11</option>
+                                <option value="12">Módulo 12</option>
+                                <option value="13">Módulo 13</option>
+                            </select>
+                        </div>
+                        <div class="form-group" style="flex: 1;">
+                            <label class="form-label" for="taskSection">Sección:</label>
+                            <input type="text" id="taskSection" class="form-control">
+                        </div>
                     </div>
-                    
-                    <div class="form-group">
-                        <label class="form-label">Sección</label>
-                        <input type="text" id="taskSection" class="form-control">
+                    <div class="flex gap-16">
+                        <div class="form-group" style="flex: 1;">
+                            <label class="form-label" for="taskStartDate">Fecha Inicio:</label>
+                            <input type="date" id="taskStartDate" class="form-control" required>
+                        </div>
+                        <div class="form-group" style="flex: 1;">
+                            <label class="form-label" for="taskEndDate">Fecha Límite:</label>
+                            <input type="date" id="taskEndDate" class="form-control" required>
+                        </div>
                     </div>
-                    
-                    <div class="form-group">
-                        <label class="form-label">Fecha Inicio</label>
-                        <input type="date" id="taskStartDate" class="form-control">
+                    <div class="flex gap-16">
+                        <div class="form-group" style="flex: 1;">
+                            <label class="form-label" for="taskDuration">Duración (horas):</label>
+                            <input type="number" id="taskDuration" class="form-control" min="0.5" step="0.5" value="1">
+                        </div>
+                        <div class="form-group" style="flex: 1;">
+                            <label class="form-label" for="taskPriority">Prioridad:</label>
+                            <select id="taskPriority" class="form-control">
+                                <option value="alta">Alta</option>
+                                <option value="media" selected>Media</option>
+                                <option value="baja">Baja</option>
+                            </select>
+                        </div>
                     </div>
-                    
-                    <div class="form-group">
-                        <label class="form-label">Fecha Límite</label>
-                        <input type="date" id="taskEndDate" class="form-control">
+                    <div class="flex gap-16">
+                        <div class="form-group" style="flex: 1;">
+                            <label class="form-label" for="taskStatus">Estado:</label>
+                            <select id="taskStatus" class="form-control">
+                                <option value="pendiente" selected>Pendiente</option>
+                                <option value="en progreso">En Progreso</option>
+                                <option value="completado">Completado</option>
+                            </select>
+                        </div>
+                        <div class="form-group" style="flex: 1;">
+                            <label class="form-label" for="taskProgress">Progreso:</label>
+                            <div class="flex items-center gap-8">
+                                <input type="range" id="taskProgress" class="form-control" min="0" max="100" value="0">
+                                <span id="taskProgressValue">0%</span>
+                            </div>
+                        </div>
                     </div>
-                    
                     <div class="form-group">
-                        <label class="form-label">Duración Estimada (horas)</label>
-                        <input type="number" id="taskDuration" class="form-control" min="1">
-                    </div>
-                    
-                    <div class="form-group">
-                        <label class="form-label">Prioridad</label>
-                        <select id="taskPriority" class="form-control">
-                            <option value="baja">Baja</option>
-                            <option value="media">Media</option>
-                            <option value="alta">Alta</option>
-                        </select>
-                    </div>
-                    
-                    <div class="form-group">
-                        <label class="form-label">Estado</label>
-                        <select id="taskStatus" class="form-control">
-                            <option value="pendiente">Pendiente</option>
-                            <option value="en progreso">En Progreso</option>
-                            <option value="completado">Completado</option>
-                        </select>
-                    </div>
-                    
-                    <div class="form-group">
-                        <label class="form-label">Progreso (%)</label>
-                        <input type="range" id="taskProgress" min="0" max="100" value="0" class="form-control">
-                        <span id="taskProgressValue">0%</span>
-                    </div>
-                    
-                    <div class="form-group">
-                        <label class="form-label">Responsable</label>
+                        <label class="form-label" for="taskResponsible">Responsable:</label>
                         <input type="text" id="taskResponsible" class="form-control" value="Tini Sanhueza">
                     </div>
-                    
                     <div class="form-group">
-                        <label class="form-label">Notas</label>
+                        <label class="form-label" for="taskNotes">Notas:</label>
                         <textarea id="taskNotes" class="form-control" rows="3"></textarea>
                     </div>
+                    <div class="modal-footer">
+                        <button type="button" id="cancelTask" class="btn btn--secondary">Cancelar</button>
+                        <button type="submit" class="btn btn--primary">Guardar</button>
+                    </div>
                 </form>
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn--outline" id="cancelTask">Cancelar</button>
-                <button type="submit" form="taskForm" class="btn btn--primary" id="saveTask">Guardar</button>
             </div>
         </div>
     </div>
 
-    <!-- Notifications -->
-    <div id="notifications" class="notifications"></div>
+    <!-- Break Reminder Modal -->
+    <div id="breakReminderModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>¡Tiempo de Descanso! 🌸</h3>
+                <button class="modal-close-btn">&times;</button>
+            </div>
+            <div class="modal-body">
+                <p>Has estado trabajando por un tiempo. Debido a tu fibromialgia, es importante tomar un descanso ahora.</p>
+                <div class="break-timer" id="breakTimer">15:00</div>
+                <p>Sugerencias para tu descanso:</p>
+                <ul>
+                    <li>Estira suavemente tus músculos</li>
+                    <li>Bebe un vaso de agua</li>
+                    <li>Respira profundamente por 2 minutos</li>
+                    <li>Descansa tus ojos de la pantalla</li>
+                </ul>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn--primary modal-close-btn">Entendido</button>
+            </div>
+        </div>
+    </div>
 
+    <!-- Notifications Container -->
+    <div class="notifications" id="notificationsContainer"></div>
+
+    <!-- Scripts -->
     <script src="app.js"></script>
 </body>
 </html>
+
