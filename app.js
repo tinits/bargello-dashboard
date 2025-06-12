@@ -304,42 +304,49 @@ class BargelloDashboard {
         }
     }
 
-    // Gestión de Salud
-    registrarSalud() {
-        const dolor = parseInt(document.getElementById('dolorSlider').value);
-        const fatiga = parseInt(document.getElementById('fatigaSlider').value);
-        const sueño = parseInt(document.getElementById('suenoSlider').value);
-        
-        const hoy = new Date().toISOString().split('T')[0];
-        
-        // Buscar si ya existe registro de hoy
-        const indiceExistente = this.datos.salud.findIndex(registro => registro.fecha === hoy);
-        
-        const nuevoRegistro = {
-            fecha: hoy,
-            dolor,
-            fatiga,
-            sueño,
-            horas_trabajadas: 0 // Se actualizará durante el día
-        };
-
-        if (indiceExistente !== -1) {
-            this.datos.salud[indiceExistente] = nuevoRegistro;
-        } else {
-            this.datos.salud.push(nuevoRegistro);
-        }
-
-        // Mantener solo últimos 30 días
-        this.datos.salud = this.datos.salud.slice(-30);
-        
-        this.guardarDatos();
-        this.actualizarEstadoSalud();
-        this.renderizarGraficoSalud();
-        this.mostrarNotificacion('Registro de salud guardado', 'success');
-        
-        // Calcular y mostrar recomendaciones
-        this.calcularRecomendaciones(dolor, fatiga, sueño);
+    // Función corregida para guardar datos de salud
+registrarSalud() {
+    const dolor = parseInt(document.getElementById('dolorSlider').value);
+    const fatiga = parseInt(document.getElementById('fatigaSlider').value);
+    const sueño = parseInt(document.getElementById('suenoSlider').value);
+    
+    const hoy = new Date().toISOString().split('T')[0];
+    
+    // Crear objeto de salud
+    const nuevoRegistro = {
+        fecha: hoy,
+        dolor: dolor,
+        fatiga: fatiga,
+        sueño: sueño,
+        timestamp: new Date().getTime()
+    };
+    
+    // Obtener historial existente o crear nuevo
+    let historialSalud = JSON.parse(localStorage.getItem('historialSalud') || '[]');
+    
+    // Verificar si ya existe registro de hoy
+    const indiceHoy = historialSalud.findIndex(registro => registro.fecha === hoy);
+    
+    if (indiceHoy >= 0) {
+        historialSalud[indiceHoy] = nuevoRegistro;
+    } else {
+        historialSalud.push(nuevoRegistro);
     }
+    
+    // Mantener solo últimos 30 días
+    historialSalud = historialSalud.slice(-30);
+    
+    // Guardar en localStorage
+    localStorage.setItem('historialSalud', JSON.stringify(historialSalud));
+    localStorage.setItem('saludActual', JSON.stringify(nuevoRegistro));
+    
+    // Actualizar interfaz
+    this.actualizarEstadoSalud();
+    this.mostrarNotificacion('Datos de salud guardados correctamente', 'success');
+    
+    // Calcular recomendaciones
+    this.calcularRecomendaciones(dolor, fatiga, sueño);
+}
 
     calcularCapacidadTrabajo(dolor, fatiga, sueño) {
         let baseHoras = 7; // Jornada estándar
@@ -686,13 +693,35 @@ class BargelloDashboard {
             ).join('');
     }
 
-    cargarArchivoMarkdown(nombreArchivo) {
-        const archivo = this.datos.archivos_md.find(a => a.nombre === nombreArchivo);
-        if (archivo) {
-            document.getElementById('markdownEditor').value = archivo.contenido;
-            this.actualizarPreviewMarkdown();
+    // Sistema para cargar archivos markdown
+async cargarArchivosMarkdown() {
+    // Lista de todos los archivos MD disponibles
+    const archivos = [];
+    for (let modulo = 0; modulo <= 13; modulo++) {
+        for (let punto = 1; punto <= 12; punto++) {
+            archivos.push(`modulo-${modulo}-punto-${punto}.md`);
         }
     }
+    
+    const contenidoMD = {};
+    
+    for (const archivo of archivos) {
+        try {
+            const respuesta = await fetch(`md-files/${archivo}`);
+            if (respuesta.ok) {
+                const contenido = await respuesta.text();
+                contenidoMD[archivo] = contenido;
+            }
+        } catch (error) {
+            console.log(`Archivo no encontrado: ${archivo}`);
+        }
+    }
+    
+    // Guardar en localStorage
+    localStorage.setItem('archivosMD', JSON.stringify(contenidoMD));
+    this.actualizarListaArchivosMarkdown();
+}
+
 
     cambiarTabMarkdown(tab) {
         document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
