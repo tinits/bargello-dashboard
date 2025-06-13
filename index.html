@@ -3,528 +3,578 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dashboard Taller de Bordado Bargello Tinicrafts</title>
+    <title>Dashboard Bargello Tinicrafts</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <link rel="stylesheet" href="style.css">
-    <!-- Chart.js para gráficos -->
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <!-- Marked.js para markdown -->
-    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
-    <!-- PapaParse para CSV -->
-    <script src="https://cdn.jsdelivr.net/npm/papaparse@5.4.1/papaparse.min.js"></script>
 </head>
 <body>
-    <!-- Header -->
-    <header class="header">
-        <div class="container flex justify-between items-center">
-            <h1 class="header__title">🧵 Taller Bargello Tinicrafts</h1>
-            <div class="header__status">
-                <div class="health-status" id="currentHealthStatus">
-                    Estado: Sin registro
+    <div class="container-fluid">
+        <!-- Header con Estado de Salud -->
+        <header class="row bg-primary text-white p-3 mb-4">
+            <div class="col-md-8">
+                <h1><i class="fas fa-tachometer-alt"></i> Dashboard Bargello Tinicrafts</h1>
+                <p class="mb-0">Gestión integral adaptada para fibromialgia refractaria severa</p>
+            </div>
+            <div class="col-md-4 text-end">
+                <div class="health-status-widget">
+                    <button class="btn btn-light" id="quickHealthBtn">
+                        <i class="fas fa-heartbeat"></i> Registrar Estado de Salud
+                    </button>
+                    <div class="mt-2">
+                        <small>Último registro: <span id="lastHealthRecord">Sin registros</span></small>
+                    </div>
                 </div>
-                <button class="btn btn--primary btn--sm" id="healthRegisterBtn">
-                    📝 Registrar Salud
-                </button>
             </div>
-        </div>
-    </header>
+        </header>
 
-    <!-- Main Layout -->
-    <div class="main-layout">
-        <!-- Sidebar -->
-        <aside class="sidebar">
-            <div class="sidebar__header">
-                <h3>Navegación</h3>
-            </div>
-            <nav>
-                <ul class="sidebar__menu">
-                    <li class="sidebar__item">
-                        <button class="sidebar__link active" data-view="dashboard">
-                            📊 Dashboard Principal
+        <!-- Navegación por Pestañas -->
+        <nav class="row mb-4">
+            <div class="col-12">
+                <ul class="nav nav-pills nav-fill" id="mainTabs" role="tablist">
+                    <li class="nav-item">
+                        <button class="nav-link active" data-bs-toggle="pill" data-bs-target="#dashboard-tab">
+                            <i class="fas fa-chart-line"></i> Dashboard
                         </button>
                     </li>
-                    <li class="sidebar__item">
-                        <button class="sidebar__link" data-view="salud">
-                            💚 Gestión de Salud
+                    <li class="nav-item">
+                        <button class="nav-link" data-bs-toggle="pill" data-bs-target="#tasks-tab">
+                            <i class="fas fa-tasks"></i> Tareas
                         </button>
                     </li>
-                    <li class="sidebar__item">
-                        <button class="sidebar__link" data-view="tareas">
-                            ✅ Gestión de Tareas
+                    <li class="nav-item">
+                        <button class="nav-link" data-bs-toggle="pill" data-bs-target="#health-tab">
+                            <i class="fas fa-user-md"></i> Salud
                         </button>
                     </li>
-                    <li class="sidebar__item">
-                        <button class="sidebar__link" data-view="timeline">
-                            📅 Timeline y Cronograma
+                    <li class="nav-item">
+                        <button class="nav-link" data-bs-toggle="pill" data-bs-target="#social-tab">
+                            <i class="fas fa-share-alt"></i> Redes Sociales
                         </button>
                     </li>
-                    <li class="sidebar__item">
-                        <button class="sidebar__link" data-view="markdown">
-                            📝 Editor de Markdown
+                    <li class="nav-item">
+                        <button class="nav-link" data-bs-toggle="pill" data-bs-target="#markdown-tab">
+                            <i class="fas fa-file-alt"></i> Archivos MD
                         </button>
                     </li>
-                    <li class="sidebar__item">
-                        <button class="sidebar__link" data-view="redes">
-                            📱 Gestión de Redes Sociales
-                        </button>
-                    </li>
-                    <li class="sidebar__item">
-                        <button class="sidebar__link" data-view="datos">
-                            💾 Gestión de Datos
+                    <li class="nav-item">
+                        <button class="nav-link" data-bs-toggle="pill" data-bs-target="#timeline-tab">
+                            <i class="fas fa-calendar-alt"></i> Timeline
                         </button>
                     </li>
                 </ul>
-            </nav>
-        </aside>
+            </div>
+        </nav>
 
-        <!-- Main Content -->
-        <main class="main-content">
-            
-            <!-- Dashboard Principal -->
-            <div id="dashboard-view" class="view active">
-                <div class="view__header">
-                    <h2>Dashboard Principal</h2>
-                    <div class="view__actions">
-                        <button class="btn btn--secondary" onclick="window.dashboard.sincronizarDatos()">
-                            🔄 Sincronizar
-                        </button>
-                        <button class="btn btn--primary" onclick="window.dashboard.exportarCSV()">
-                            📤 Exportar CSV
-                        </button>
+        <!-- Contenido de las Pestañas -->
+        <div class="tab-content" id="mainTabContent">
+            <!-- Tab Dashboard Principal -->
+            <div class="tab-pane fade show active" id="dashboard-tab">
+                <div class="row">
+                    <!-- Métricas Principales -->
+                    <div class="col-md-3 mb-4">
+                        <div class="card border-success">
+                            <div class="card-header bg-success text-white">
+                                <h6><i class="fas fa-check-circle"></i> Tareas Completadas</h6>
+                            </div>
+                            <div class="card-body text-center">
+                                <h2 class="text-success" id="completedTasks">0</h2>
+                                <small class="text-muted">de <span id="totalTasks">0</span> totales</small>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="col-md-3 mb-4">
+                        <div class="card border-warning">
+                            <div class="card-header bg-warning text-dark">
+                                <h6><i class="fas fa-clock"></i> Horas Trabajadas Hoy</h6>
+                            </div>
+                            <div class="card-body text-center">
+                                <h2 class="text-warning" id="hoursToday">0</h2>
+                                <small class="text-muted">Capacidad recomendada: <span id="recommendedHours">4-6h</span></small>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="col-md-3 mb-4">
+                        <div class="card border-info">
+                            <div class="card-header bg-info text-white">
+                                <h6><i class="fas fa-heartbeat"></i> Estado de Salud</h6>
+                            </div>
+                            <div class="card-body text-center">
+                                <h2 class="text-info" id="healthLevel">--</h2>
+                                <small class="text-muted">Nivel dolor/fatiga (1-10)</small>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="col-md-3 mb-4">
+                        <div class="card border-primary">
+                            <div class="card-header bg-primary text-white">
+                                <h6><i class="fas fa-share-alt"></i> Contenido Publicado</h6>
+                            </div>
+                            <div class="card-body text-center">
+                                <h2 class="text-primary" id="socialPosts">0</h2>
+                                <small class="text-muted">Esta semana</small>
+                            </div>
+                        </div>
                     </div>
                 </div>
-                
-                <div class="dashboard-grid">
-                    <!-- Estado de Salud Actual -->
-                    <div class="card">
-                        <div class="card__body">
-                            <h3>Estado de Salud Actual</h3>
-                            <div id="healthStatus">
-                                <p>No hay registro de hoy</p>
+
+                <!-- Gráficos de Progreso -->
+                <div class="row">
+                    <div class="col-md-6 mb-4">
+                        <div class="card">
+                            <div class="card-header">
+                                <h5><i class="fas fa-chart-bar"></i> Progreso por Módulo</h5>
+                            </div>
+                            <div class="card-body">
+                                <canvas id="moduleProgressChart"></canvas>
                             </div>
                         </div>
                     </div>
-
-                    <!-- Capacidad de Trabajo -->
-                    <div class="card">
-                        <div class="card__body">
-                            <h3>Capacidad de Trabajo</h3>
-                            <div id="workCapacity">
-                                <p>Registra tu estado para calcular capacidad</p>
+                    
+                    <div class="col-md-6 mb-4">
+                        <div class="card">
+                            <div class="card-header">
+                                <h5><i class="fas fa-chart-line"></i> Tendencia de Salud vs Productividad</h5>
+                            </div>
+                            <div class="card-body">
+                                <canvas id="healthProductivityChart"></canvas>
                             </div>
                         </div>
                     </div>
+                </div>
 
-                    <!-- Tareas Sugeridas -->
-                    <div class="card">
-                        <div class="card__body">
-                            <h3>Tareas Sugeridas</h3>
-                            <div id="suggestedTasks">
-                                <p>No hay sugerencias disponibles</p>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Progreso de Módulos -->
-                    <div class="card">
-                        <div class="card__body">
-                            <h3>Progreso de Módulos</h3>
-                            <canvas id="moduleProgressChart"></canvas>
+                <!-- Notificaciones de Descanso -->
+                <div class="row">
+                    <div class="col-12">
+                        <div class="alert alert-info d-none" id="breakReminder">
+                            <h5><i class="fas fa-coffee"></i> ¡Hora del Descanso!</h5>
+                            <p>Has estado trabajando por <span id="workTime">45</span> minutos. Es momento de tomar un descanso de 15 minutos.</p>
+                            <button class="btn btn-primary btn-sm" id="startBreakBtn">Iniciar Descanso</button>
+                            <button class="btn btn-secondary btn-sm" id="postponeBreakBtn">Posponer 10 min</button>
                         </div>
                     </div>
                 </div>
             </div>
 
-            <!-- Gestión de Salud -->
-            <div id="salud-view" class="view">
-                <div class="view__header">
-                    <h2>Gestión de Salud y Bienestar</h2>
-                </div>
-                
-                <div class="health-section">
-                    <div class="card">
-                        <div class="card__body">
-                            <h3>Registro Diario</h3>
-                            <form id="healthForm" class="health-form">
-                                <div class="form-group">
-                                    <label for="dolorSlider" class="form-label">
-                                        Nivel de Dolor: <span id="dolorValue">5</span>/10
-                                    </label>
-                                    <input type="range" id="dolorSlider" min="1" max="10" value="5" class="form-control">
-                                </div>
-                                
-                                <div class="form-group">
-                                    <label for="fatigaSlider" class="form-label">
-                                        Nivel de Fatiga: <span id="fatigaValue">5</span>/10
-                                    </label>
-                                    <input type="range" id="fatigaSlider" min="1" max="10" value="5" class="form-control">
-                                </div>
-                                
-                                <div class="form-group">
-                                    <label for="suenoSlider" class="form-label">
-                                        Horas de Sueño: <span id="suenoValue">7</span>
-                                    </label>
-                                    <input type="range" id="suenoSlider" min="3" max="12" value="7" class="form-control">
-                                </div>
-                                
-                                <button type="submit" class="btn btn--primary btn--full-width">
-                                    💾 Guardar Registro de Salud
+            <!-- Tab Gestión de Tareas -->
+            <div class="tab-pane fade" id="tasks-tab">
+                <div class="row">
+                    <div class="col-md-4 mb-4">
+                        <div class="card">
+                            <div class="card-header d-flex justify-content-between align-items-center">
+                                <h5><i class="fas fa-plus"></i> Gestión de Tareas</h5>
+                                <button class="btn btn-sm btn-success" id="addNewTaskBtn">
+                                    <i class="fas fa-plus"></i> Nueva Tarea
                                 </button>
-                            </form>
-                        </div>
-                    </div>
-
-                    <div class="card">
-                        <div class="card__body">
-                            <h3>Historial (últimos 30 días)</h3>
-                            <canvas id="healthChart"></canvas>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Gestión de Tareas -->
-            <div id="tareas-view" class="view">
-                <div class="view__header">
-                    <h2>Gestión de Tareas</h2>
-                    <div class="view__actions">
-                        <button class="btn btn--primary" id="addTaskBtn">
-                            ➕ Nueva Tarea
-                        </button>
-                        <button class="btn btn--secondary" id="exportTasksBtn">
-                            📤 Exportar Tareas
-                        </button>
-                    </div>
-                </div>
-
-                <!-- Filtros -->
-                <div class="card tasks-filters">
-                    <div class="card__body">
-                        <div class="filters-row">
-                            <div class="form-group">
-                                <label for="searchTasks" class="form-label">Buscar tareas</label>
-                                <input type="text" id="searchTasks" class="form-control" placeholder="Buscar por nombre o descripción...">
                             </div>
-                            <div class="form-group">
-                                <label for="filterModule" class="form-label">Filtrar por módulo</label>
-                                <select id="filterModule" class="form-control">
-                                    <option value="">Todos los módulos</option>
-                                </select>
-                            </div>
-                            <div class="form-group">
-                                <label for="filterStatus" class="form-label">Filtrar por estado</label>
-                                <select id="filterStatus" class="form-control">
-                                    <option value="">Todos los estados</option>
-                                    <option value="pendiente">Pendiente</option>
-                                    <option value="en progreso">En Progreso</option>
-                                    <option value="completado">Completado</option>
-                                </select>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Tabla de Tareas -->
-                <div class="card">
-                    <div class="tasks-table-container">
-                        <table class="tasks-table">
-                            <thead>
-                                <tr>
-                                    <th>Nombre</th>
-                                    <th>Módulo</th>
-                                    <th>Estado</th>
-                                    <th>Progreso</th>
-                                    <th>Fecha Límite</th>
-                                    <th>Prioridad</th>
-                                    <th>Acciones</th>
-                                </tr>
-                            </thead>
-                            <tbody id="tasksTableBody">
-                                <!-- Tareas se cargarán dinámicamente -->
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Timeline y Cronograma -->
-            <div id="timeline-view" class="view">
-                <div class="view__header">
-                    <h2>Timeline y Cronograma</h2>
-                </div>
-                
-                <div class="timeline-container">
-                    <div class="timeline-controls">
-                        <button class="btn btn--secondary" id="prevWeek">← Semana Anterior</button>
-                        <h3 id="currentWeekLabel">Semana Actual</h3>
-                        <button class="btn btn--secondary" id="nextWeek">Semana Siguiente →</button>
-                    </div>
-                    
-                    <div class="timeline-grid" id="timelineGrid">
-                        <!-- Timeline se generará dinámicamente -->
-                    </div>
-                </div>
-            </div>
-
-            <!-- Editor de Markdown -->
-            <div id="markdown-view" class="view">
-                <div class="view__header">
-                    <h2>Editor de Markdown</h2>
-                    <div class="view__actions">
-                        <button class="btn btn--primary" id="newMarkdownFile">
-                            📄 Nuevo Archivo
-                        </button>
-                    </div>
-                </div>
-                
-                <div class="card">
-                    <div class="card__body">
-                        <div class="form-group">
-                            <label for="mdFileSelect" class="form-label">Seleccionar archivo .md</label>
-                            <select id="mdFileSelect" class="form-control">
-                                <option value="">Selecciona un archivo...</option>
-                            </select>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="card markdown-editor">
-                    <div class="markdown-tabs">
-                        <button class="tab-btn active" data-tab="editor">📝 Editor</button>
-                        <button class="tab-btn" data-tab="preview">👁️ Vista Previa</button>
-                    </div>
-                    
-                    <div class="markdown-content">
-                        <textarea id="markdownEditor" placeholder="Escribe aquí tu contenido en Markdown..."></textarea>
-                        <div id="markdownPreview" class="markdown-preview" style="display: none;"></div>
-                    </div>
-                    
-                    <div class="markdown-actions">
-                        <button class="btn btn--primary" id="saveMarkdown">
-                            💾 Guardar
-                        </button>
-                        <button class="btn btn--secondary" onclick="window.dashboard.cambiarTabMarkdown('preview')">
-                            👁️ Vista Previa
-                        </button>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Gestión de Redes Sociales -->
-            <div id="redes-view" class="view">
-                <div class="view__header">
-                    <h2>Gestión de Redes Sociales</h2>
-                </div>
-                
-                <div class="card social-calendar">
-                    <div class="card__body">
-                        <h3>Calendario de Contenido</h3>
-                        <div class="calendar-grid" id="socialCalendar">
-                            <!-- Calendario se generará dinámicamente -->
-                        </div>
-                    </div>
-                </div>
-
-                <div class="social-suggestions">
-                    <div class="card">
-                        <div class="card__body">
-                            <h3>Sugerencias de Contenido</h3>
-                            <div id="contentSuggestions">
-                                <h4>📸 Instagram</h4>
-                                <ul>
-                                    <li>Time-lapse del patrón actual en desarrollo</li>
-                                    <li>Fotos del antes y después de proyectos</li>
-                                    <li>Stories con tips de ergonomía para fibromialgia</li>
-                                </ul>
-                                
-                                <h4>🎥 YouTube</h4>
-                                <ul>
-                                    <li>Tutorial completo del módulo en progreso</li>
-                                    <li>Video sobre historia del Bargello</li>
-                                    <li>Sesión de preguntas y respuestas</li>
-                                </ul>
-                                
-                                <h4>📌 Pinterest</h4>
-                                <ul>
-                                    <li>Infografía de técnicas básicas</li>
-                                    <li>Paleta de colores del proyecto actual</li>
-                                    <li>Pins de inspiración histórica</li>
-                                </ul>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Gestión de Datos -->
-            <div id="datos-view" class="view">
-                <div class="view__header">
-                    <h2>Gestión de Datos</h2>
-                </div>
-                
-                <div class="data-management">
-                    <div class="card">
-                        <div class="card__body">
-                            <h3>Importar/Exportar CSV</h3>
-                            <div class="flex flex-col gap-16">
-                                <div>
-                                    <label for="csvFileInput" class="form-label">Cargar archivo CSV</label>
-                                    <input type="file" id="csvFileInput" accept=".csv" class="form-control">
-                                    <button class="btn btn--primary mt-8" id="loadCSV">
-                                        📥 Cargar CSV
-                                    </button>
+                            <div class="card-body">
+                                <!-- Subida de CSV -->
+                                <div class="mb-3">
+                                    <label class="form-label">Cargar CSV Completo:</label>
+                                    <input type="file" class="form-control" id="csvUpload" accept=".csv">
+                                    <small class="text-muted">Soporta archivos CSV de hasta 10MB</small>
                                 </div>
                                 
+                                <!-- Filtros de Búsqueda -->
+                                <div class="mb-3">
+                                    <label class="form-label">Buscar Tareas:</label>
+                                    <input type="text" class="form-control" id="taskSearch" placeholder="Buscar por nombre, módulo, etc.">
+                                </div>
+                                
+                                <div class="row">
+                                    <div class="col-6">
+                                        <select class="form-select form-select-sm" id="moduleFilter">
+                                            <option value="">Todos los módulos</option>
+                                            <option value="0">Módulo 0</option>
+                                            <option value="1">Módulo 1</option>
+                                            <option value="2">Módulo 2</option>
+                                            <!-- Opciones dinámicas -->
+                                        </select>
+                                    </div>
+                                    <div class="col-6">
+                                        <select class="form-select form-select-sm" id="statusFilter">
+                                            <option value="">Todos los estados</option>
+                                            <option value="pending">Pendiente</option>
+                                            <option value="in_progress">En Progreso</option>
+                                            <option value="completed">Completado</option>
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="col-md-8">
+                        <div class="card">
+                            <div class="card-header d-flex justify-content-between align-items-center">
+                                <h5><i class="fas fa-list"></i> Lista de Tareas</h5>
                                 <div>
-                                    <button class="btn btn--secondary btn--full-width" id="exportCSV">
-                                        📤 Exportar CSV Actual
+                                    <button class="btn btn-sm btn-outline-primary" id="exportCsvBtn">
+                                        <i class="fas fa-download"></i> Exportar CSV
+                                    </button>
+                                    <button class="btn btn-sm btn-outline-success" id="weeklyViewBtn">
+                                        <i class="fas fa-calendar-week"></i> Vista Semanal
                                     </button>
                                 </div>
                             </div>
-                        </div>
-                    </div>
-
-                    <div class="card">
-                        <div class="card__body">
-                            <h3>Configuración de Respaldo</h3>
-                            <div class="flex flex-col gap-16">
-                                <button class="btn btn--primary" id="syncData">
-                                    🔄 Sincronizar Datos
-                                </button>
-                                <button class="btn btn--warning" id="resetData">
-                                    🗑️ Resetear Datos
-                                </button>
-                                <p class="mt-8">
-                                    <strong>Última sincronización:</strong> 
-                                    <span id="lastSync">No disponible</span>
-                                </p>
+                            <div class="card-body">
+                                <div class="table-responsive">
+                                    <table class="table table-hover" id="tasksTable">
+                                        <thead>
+                                            <tr>
+                                                <th>Tarea</th>
+                                                <th>Módulo</th>
+                                                <th>Progreso</th>
+                                                <th>Estado</th>
+                                                <th>Fecha Límite</th>
+                                                <th>Acciones</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody id="tasksTableBody">
+                                            <!-- Contenido dinámico -->
+                                        </tbody>
+                                    </table>
+                                </div>
                             </div>
                         </div>
                     </div>
                 </div>
             </div>
 
-        </main>
-    </div>
+            <!-- Tab Gestión de Salud -->
+            <div class="tab-pane fade" id="health-tab">
+                <div class="row">
+                    <div class="col-md-6 mb-4">
+                        <div class="card">
+                            <div class="card-header">
+                                <h5><i class="fas fa-heartbeat"></i> Registro Diario de Salud</h5>
+                            </div>
+                            <div class="card-body">
+                                <form id="healthForm">
+                                    <div class="mb-3">
+                                        <label class="form-label">Nivel de Dolor (1-10):</label>
+                                        <input type="range" class="form-range" min="1" max="10" id="painLevel" value="5">
+                                        <div class="d-flex justify-content-between">
+                                            <small>Sin dolor</small>
+                                            <span id="painValue" class="fw-bold">5</span>
+                                            <small>Dolor severo</small>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="mb-3">
+                                        <label class="form-label">Nivel de Fatiga (1-10):</label>
+                                        <input type="range" class="form-range" min="1" max="10" id="fatigueLevel" value="5">
+                                        <div class="d-flex justify-content-between">
+                                            <small>Sin fatiga</small>
+                                            <span id="fatigueValue" class="fw-bold">5</span>
+                                            <small>Fatiga extrema</small>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="mb-3">
+                                        <label class="form-label">Calidad del Sueño (1-10):</label>
+                                        <input type="range" class="form-range" min="1" max="10" id="sleepQuality" value="7">
+                                        <div class="d-flex justify-content-between">
+                                            <small>Muy malo</small>
+                                            <span id="sleepValue" class="fw-bold">7</span>
+                                            <small>Excelente</small>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="mb-3">
+                                        <label class="form-label">Notas del día:</label>
+                                        <textarea class="form-control" id="healthNotes" rows="3" placeholder="Medicación, factores que influyeron, etc."></textarea>
+                                    </div>
+                                    
+                                    <button type="submit" class="btn btn-primary w-100">
+                                        <i class="fas fa-save"></i> Guardar Registro
+                                    </button>
+                                </form>
+                                
+                                <!-- Recomendaciones Basadas en Estado -->
+                                <div class="mt-4" id="healthRecommendations">
+                                    <h6>Recomendaciones para Hoy:</h6>
+                                    <div class="alert alert-info" id="recommendationsText">
+                                        Complete el registro para recibir recomendaciones personalizadas.
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="col-md-6 mb-4">
+                        <div class="card">
+                            <div class="card-header">
+                                <h5><i class="fas fa-chart-area"></i> Historial de Salud (30 días)</h5>
+                            </div>
+                            <div class="card-body">
+                                <canvas id="healthHistoryChart"></canvas>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
 
-    <!-- Modal para Tareas -->
-    <div id="taskModal" class="modal">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h3 id="taskModalTitle">Nueva Tarea</h3>
-                <button class="modal-close" id="closeTaskModal">×</button>
+            <!-- Tab Redes Sociales -->
+            <div class="tab-pane fade" id="social-tab">
+                <div class="row">
+                    <div class="col-md-4 mb-4">
+                        <div class="card">
+                            <div class="card-header">
+                                <h5><i class="fas fa-cog"></i> Configuración de Cuentas</h5>
+                            </div>
+                            <div class="card-body">
+                                <div class="mb-3">
+                                    <label class="form-label">Instagram:</label>
+                                    <input type="text" class="form-control" id="instagramHandle" placeholder="@tu_usuario">
+                                </div>
+                                <div class="mb-3">
+                                    <label class="form-label">Facebook:</label>
+                                    <input type="text" class="form-control" id="facebookPage" placeholder="Nombre de tu página">
+                                </div>
+                                <div class="mb-3">
+                                    <label class="form-label">TikTok:</label>
+                                    <input type="text" class="form-control" id="tiktokHandle" placeholder="@tu_usuario">
+                                </div>
+                                <div class="mb-3">
+                                    <label class="form-label">Pinterest:</label>
+                                    <input type="text" class="form-control" id="pinterestHandle" placeholder="@tu_usuario">
+                                </div>
+                                <div class="mb-3">
+                                    <label class="form-label">YouTube:</label>
+                                    <input type="text" class="form-control" id="youtubeChannel" placeholder="Nombre del canal">
+                                </div>
+                                <button class="btn btn-primary w-100" id="saveSocialAccountsBtn">
+                                    <i class="fas fa-save"></i> Guardar Configuración
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="col-md-8">
+                        <div class="card">
+                            <div class="card-header">
+                                <h5><i class="fas fa-calendar-alt"></i> Calendario de Contenido y Sugerencias</h5>
+                            </div>
+                            <div class="card-body">
+                                <div class="mb-3">
+                                    <h6>Sugerencias Basadas en tu Progreso Actual:</h6>
+                                    <div id="contentSuggestions">
+                                        <!-- Sugerencias dinámicas -->
+                                    </div>
+                                </div>
+                                
+                                <!-- Calendario Semanal -->
+                                <div class="table-responsive">
+                                    <table class="table table-bordered" id="socialCalendar">
+                                        <thead>
+                                            <tr>
+                                                <th>Plataforma</th>
+                                                <th>Lun</th>
+                                                <th>Mar</th>
+                                                <th>Mié</th>
+                                                <th>Jue</th>
+                                                <th>Vie</th>
+                                                <th>Sáb</th>
+                                                <th>Dom</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody id="socialCalendarBody">
+                                            <!-- Contenido dinámico -->
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
             </div>
-            <div class="modal-body">
-                <form id="taskForm">
-                    <div class="form-group">
-                        <label for="taskName" class="form-label">Nombre de la tarea *</label>
-                        <input type="text" id="taskName" name="nombre" class="form-control" required>
+
+            <!-- Tab Archivos Markdown -->
+            <div class="tab-pane fade" id="markdown-tab">
+                <div class="row">
+                    <div class="col-md-4 mb-4">
+                        <div class="card">
+                            <div class="card-header">
+                                <h5><i class="fas fa-folder-open"></i> Archivos Markdown</h5>
+                            </div>
+                            <div class="card-body">
+                                <div class="mb-3">
+                                    <label class="form-label">Subir nuevo archivo .md:</label>
+                                    <input type="file" class="form-control" id="mdUpload" accept=".md">
+                                </div>
+                                
+                                <div class="mb-3">
+                                    <button class="btn btn-success w-100" id="scanMdFilesBtn">
+                                        <i class="fas fa-sync"></i> Escanear Carpeta MD
+                                    </button>
+                                </div>
+                                
+                                <div class="mb-3">
+                                    <label class="form-label">Buscar archivos:</label>
+                                    <input type="text" class="form-control" id="mdSearch" placeholder="Buscar por módulo o punto">
+                                </div>
+                                
+                                <div class="list-group" id="mdFilesList">
+                                    <!-- Lista dinámica de archivos -->
+                                </div>
+                            </div>
+                        </div>
                     </div>
                     
-                    <div class="form-group">
-                        <label for="taskDescription" class="form-label">Descripción</label>
-                        <textarea id="taskDescription" name="descripcion" class="form-control" rows="3"></textarea>
+                    <div class="col-md-8">
+                        <div class="card">
+                            <div class="card-header d-flex justify-content-between align-items-center">
+                                <h5><i class="fas fa-edit"></i> Editor Markdown</h5>
+                                <div>
+                                    <button class="btn btn-sm btn-outline-primary" id="previewMdBtn">
+                                        <i class="fas fa-eye"></i> Vista Previa
+                                    </button>
+                                    <button class="btn btn-sm btn-success" id="saveMdBtn">
+                                        <i class="fas fa-save"></i> Guardar
+                                    </button>
+                                </div>
+                            </div>
+                            <div class="card-body">
+                                <textarea class="form-control" id="mdEditor" rows="20" placeholder="Selecciona un archivo para editar o crea uno nuevo..."></textarea>
+                                <input type="hidden" id="currentMdFile">
+                            </div>
+                        </div>
                     </div>
-                    
-                    <div class="form-group">
-                        <label for="taskModule" class="form-label">Módulo</label>
-                        <select id="taskModule" name="modulo" class="form-control">
-                            <option value="0">Módulo 0 - Biblioteca Base</option>
-                            <option value="1">Módulo 1 - Fundamentos</option>
-                            <option value="2">Módulo 2 - Técnicas Básicas</option>
-                            <option value="3">Módulo 3 - Profundización</option>
-                            <option value="4">Módulo 4 - Transferencia</option>
-                            <option value="5">Módulo 5 - Finalización</option>
-                            <option value="6">Módulo 6 - Materiales Especiales</option>
-                            <option value="7">Módulo 7 - Escalas</option>
-                            <option value="8">Módulo 8 - Variaciones</option>
-                            <option value="9">Módulo 9 - Bordes</option>
-                            <option value="10">Módulo 10 - Composiciones</option>
-                            <option value="11">Módulo 11 - Canvaswork</option>
-                            <option value="12">Módulo 12 - Proyectos Finales</option>
-                            <option value="13">Módulo 13 - Maestría</option>
-                        </select>
-                    </div>
-                    
-                    <div class="form-group">
-                        <label for="taskSection" class="form-label">Sección</label>
-                        <input type="text" id="taskSection" name="seccion" class="form-control" placeholder="Ej: Biblioteca Base, Fundamentos, etc.">
-                    </div>
-                    
-                    <div class="form-group">
-                        <label for="taskStartDate" class="form-label">Fecha de inicio</label>
-                        <input type="date" id="taskStartDate" name="fecha_inicio" class="form-control">
-                    </div>
-                    
-                    <div class="form-group">
-                        <label for="taskEndDate" class="form-label">Fecha límite</label>
-                        <input type="date" id="taskEndDate" name="fecha_limite" class="form-control">
-                    </div>
-                    
-                    <div class="form-group">
-                        <label for="taskDuration" class="form-label">Duración estimada (horas)</label>
-                        <input type="number" id="taskDuration" name="duracion_estimada" class="form-control" min="0.5" step="0.5">
-                    </div>
-                    
-                    <div class="form-group">
-                        <label for="taskPriority" class="form-label">Prioridad</label>
-                        <select id="taskPriority" name="prioridad" class="form-control">
-                            <option value="alta">Alta</option>
-                            <option value="media">Media</option>
-                            <option value="baja">Baja</option>
-                        </select>
-                    </div>
-                    
-                    <div class="form-group">
-                        <label for="taskStatus" class="form-label">Estado</label>
-                        <select id="taskStatus" name="estado" class="form-control">
-                            <option value="pendiente">Pendiente</option>
-                            <option value="en progreso">En Progreso</option>
-                            <option value="completado">Completado</option>
-                        </select>
-                    </div>
-                    
-                    <div class="form-group">
-                        <label for="taskProgress" class="form-label">
-                            Progreso: <span id="taskProgressValue">0%</span>
-                        </label>
-                        <input type="range" id="taskProgress" name="progreso" class="form-control" min="0" max="100" value="0">
-                    </div>
-                    
-                    <div class="form-group">
-                        <label for="taskResponsible" class="form-label">Responsable</label>
-                        <input type="text" id="taskResponsible" name="responsable" class="form-control" value="Tini Sanhueza">
-                    </div>
-                    
-                    <div class="form-group">
-                        <label for="taskNotes" class="form-label">Notas adicionales</label>
-                        <textarea id="taskNotes" name="notas" class="form-control" rows="3" placeholder="Notas, comentarios o detalles adicionales..."></textarea>
-                    </div>
-                </form>
+                </div>
             </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn--secondary" id="cancelTask">Cancelar</button>
-                <button type="submit" form="taskForm" class="btn btn--primary">Guardar Tarea</button>
+
+            <!-- Tab Timeline -->
+            <div class="tab-pane fade" id="timeline-tab">
+                <div class="card">
+                    <div class="card-header d-flex justify-content-between align-items-center">
+                        <h5><i class="fas fa-project-diagram"></i> Timeline del Proyecto</h5>
+                        <div>
+                            <div class="btn-group" role="group">
+                                <button type="button" class="btn btn-outline-primary active" id="timelineDaily">Diario</button>
+                                <button type="button" class="btn btn-outline-primary" id="timelineWeekly">Semanal</button>
+                                <button type="button" class="btn btn-outline-primary" id="timelineMonthly">Mensual</button>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="card-body">
+                        <div id="timelineContainer" style="height: 500px; overflow-x: auto;">
+                            <!-- Timeline visual -->
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
 
-    <!-- Contenedor de Notificaciones -->
-    <div id="notifications" class="notifications"></div>
+    <!-- Modales -->
+    <!-- Modal de Nueva Tarea -->
+    <div class="modal fade" id="newTaskModal" tabindex="-1">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Nueva Tarea</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="newTaskForm">
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label class="form-label">Nombre de la Tarea:</label>
+                                    <input type="text" class="form-control" id="taskName" required>
+                                </div>
+                                <div class="mb-3">
+                                    <label class="form-label">Módulo:</label>
+                                    <select class="form-select" id="taskModule" required>
+                                        <option value="">Seleccionar módulo</option>
+                                        <!-- Opciones dinámicas -->
+                                    </select>
+                                </div>
+                                <div class="mb-3">
+                                    <label class="form-label">Sección:</label>
+                                    <input type="text" class="form-control" id="taskSection">
+                                </div>
+                                <div class="mb-3">
+                                    <label class="form-label">Prioridad:</label>
+                                    <select class="form-select" id="taskPriority">
+                                        <option value="low">Baja</option>
+                                        <option value="medium" selected>Media</option>
+                                        <option value="high">Alta</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label class="form-label">Fecha de Inicio:</label>
+                                    <input type="date" class="form-control" id="taskStartDate">
+                                </div>
+                                <div class="mb-3">
+                                    <label class="form-label">Fecha Límite:</label>
+                                    <input type="date" class="form-control" id="taskDueDate">
+                                </div>
+                                <div class="mb-3">
+                                    <label class="form-label">Duración Estimada (horas):</label>
+                                    <input type="number" class="form-control" id="taskDuration" min="0.5" step="0.5">
+                                </div>
+                                <div class="mb-3">
+                                    <label class="form-label">Progreso (%):</label>
+                                    <input type="range" class="form-range" min="0" max="100" id="taskProgress" value="0">
+                                    <span id="taskProgressValue">0%</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Descripción:</label>
+                            <textarea class="form-control" id="taskDescription" rows="3"></textarea>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Notas Adicionales:</label>
+                            <textarea class="form-control" id="taskNotes" rows="4" placeholder="Aquí puedes escribir todo el detalle de lo que tienes que hacer para esta tarea..."></textarea>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="button" class="btn btn-primary" id="saveNewTaskBtn">Guardar Tarea</button>
+                </div>
+            </div>
+        </div>
+    </div>
 
-    <!-- Script principal -->
+    <!-- Modal de Descanso -->
+    <div class="modal fade" id="breakModal" tabindex="-1" data-bs-backdrop="static">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header bg-info text-white">
+                    <h5 class="modal-title"><i class="fas fa-coffee"></i> Tiempo de Descanso</h5>
+                </div>
+                <div class="modal-body text-center">
+                    <div class="mb-4">
+                        <i class="fas fa-coffee fa-4x text-info"></i>
+                    </div>
+                    <h4>¡Es hora de descansar!</h4>
+                    <p>Tiempo de descanso: <span id="breakTimeLeft" class="fw-bold">15:00</span></p>
+                    <div class="progress mb-3">
+                        <div class="progress-bar bg-info" id="breakProgressBar" style="width: 0%"></div>
+                    </div>
+                    <p class="text-muted">Levántate, estírate, bebe agua o realiza ejercicios de relajación</p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-success" id="finishBreakBtn">Terminar Descanso</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/papaparse@5.4.1/papaparse.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
     <script src="app.js"></script>
-    
-    <!-- Inicialización -->
-    <script>
-        // Inicializar el dashboard cuando se carga la página
-        document.addEventListener('DOMContentLoaded', function() {
-            window.dashboard = new BargelloDashboard();
-            
-            // Solicitar permisos de notificación si es necesario
-            if ('Notification' in window && Notification.permission === 'default') {
-                Notification.requestPermission();
-            }
-        });
-    </script>
 </body>
 </html>
