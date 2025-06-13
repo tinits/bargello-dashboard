@@ -1,1383 +1,1385 @@
 class BargelloDashboard {
     constructor() {
-        this.datos = {
-            tareas: [],
-            salud: [],
-            archivos_md: [],
-            redes_sociales: {},
-            configuracion: {}
-        };
-        this.currentView = 'dashboard';
-        this.editingTaskId = null;
-        this.currentWeek = new Date();
-        this.markdownFiles = {};
-        this.healthChart = null;
-        this.progressChart = null;
-        this.breakInterval = null;
-        this.inicializar();
-    }
-
-    async inicializar() {
-        this.cargarDatosIniciales();
-        this.configurarEventListeners();
-        this.inicializarVistas();
-        this.configurarNotificaciones();
-        this.actualizarEstadoSalud();
-        this.renderizarTareas();
-        await this.cargarArchivosMarkdown();
-        this.iniciarNotificacionesDescanso();
-        this.configurarSincronizacionAutomatica();
-    }
-
-    cargarDatosIniciales() {
-        const datosGuardados = localStorage.getItem('bargelloDashboard');
-        if (datosGuardados) {
-            this.datos = JSON.parse(datosGuardados);
-        } else {
-            // Datos iniciales con tareas del CSV v3
-            this.datos = {
-                tareas: [
-                    {
-                        id: 1,
-                        nombre: "Video de Bienvenida y Filosofía del Taller",
-                        descripcion: "Crear video de bienvenida de 15-20 minutos que presente la filosofía del taller, historia del Bargello y expectativas del año",
-                        modulo: "0",
-                        seccion: "Biblioteca Base",
-                        fecha_inicio: "2025-06-17",
-                        fecha_limite: "2025-06-20",
-                        duracion_estimada: 8,
-                        dependencias: "",
-                        prioridad: "alta",
-                        progreso: 0,
-                        estado: "pendiente",
-                        responsable: "Tini Sanhueza",
-                        notas: "Incluir presentación personal de la instructora, historia del bordado Bargello, filosofía terapéutica del taller",
-                        archivo_md: "modulo-0-punto-1.md",
-                        dolor_requerido: 6,
-                        fatiga_maxima: 7
-                    },
-                    {
-                        id: 2,
-                        nombre: "Foro de Presentaciones y Comunidad",
-                        descripcion: "Configurar foro interactivo en Hotmart con plantillas de presentación y sistema de mentorías",
-                        modulo: "0",
-                        seccion: "Biblioteca Base",
-                        fecha_inicio: "2025-06-17",
-                        fecha_limite: "2025-06-25",
-                        duracion_estimada: 12,
-                        dependencias: "",
-                        prioridad: "alta",
-                        progreso: 25,
-                        estado: "en progreso",
-                        responsable: "Tini Sanhueza",
-                        notas: "Crear plantilla de presentación personal, guía para compartir experiencia previa",
-                        archivo_md: "modulo-0-punto-2.md",
-                        dolor_requerido: 5,
-                        fatiga_maxima: 6
-                    },
-                    {
-                        id: 3,
-                        nombre: "Ebook Historia y Fundamentos",
-                        descripcion: "Escribir ebook de 50+ páginas sobre orígenes del Bargello en el siglo XVII",
-                        modulo: "0",
-                        seccion: "Biblioteca Base",
-                        fecha_inicio: "2025-06-21",
-                        fecha_limite: "2025-07-05",
-                        duracion_estimada: 36,
-                        dependencias: "1",
-                        prioridad: "alta",
-                        progreso: 0,
-                        estado: "pendiente",
-                        responsable: "Tini Sanhueza",
-                        notas: "Investigar orígenes del Bargello en Florencia Italia, evolución histórica",
-                        archivo_md: "modulo-0-punto-3.md",
-                        dolor_requerido: 7,
-                        fatiga_maxima: 8
-                    }
-                ],
-                salud: this.generarHistorialSalud(),
-                archivos_md: [
-                    {
-                        nombre: "modulo-0-punto-1.md",
-                        titulo: "Video de Bienvenida y Filosofía del Taller",
-                        contenido: "# Módulo 0 - Punto 1: Video de Bienvenida\n\n## Objetivos\n- Presentar la filosofía del taller\n- Explicar la historia del Bargello\n- Establecer expectativas del curso\n\n## Contenido del Video\n1. Presentación personal\n2. Historia del bordado Bargello\n3. Beneficios terapéuticos\n4. Estructura del curso"
-                    }
-                ],
-                redes_sociales: {
-                    instagram: {
-                        handle: "@tinicrafts",
-                        frecuencia: "2 veces por semana",
-                        horarios: ["Lunes 18:00", "Jueves 18:00"],
-                        contenido_sugerido: ["Fotos de progreso", "Time-lapse técnicas", "Stories con tips"],
-                        connected: false,
-                        apiKey: ""
-                    },
-                    youtube: {
-                        canal: "Tinicrafts Bordado",
-                        frecuencia: "1 video por semana",
-                        horarios: ["Miércoles 15:00"],
-                        contenido_sugerido: ["Tutoriales completos", "Teoría Bargello", "Proyectos mensuales"],
-                        connected: false,
-                        apiKey: ""
-                    },
-                    facebook: {
-                        pagina: "Tinicrafts",
-                        frecuencia: "3 veces por semana",
-                        horarios: ["Lunes 12:00", "Miércoles 16:00", "Viernes 19:00"],
-                        contenido_sugerido: ["Actualizaciones del taller", "Logros de alumnas", "Posts educativos"],
-                        connected: false,
-                        apiKey: ""
-                    },
-                    tiktok: {
-                        usuario: "@tinicrafts",
-                        frecuencia: "1 vez por semana",
-                        horarios: ["Sábado 15:00"],
-                        contenido_sugerido: ["Videos cortos transformaciones", "Técnicas en 60 segundos", "Bordado terapéutico"],
-                        connected: false,
-                        apiKey: ""
-                    },
-                    pinterest: {
-                        perfil: "Tinicrafts Bordado",
-                        frecuencia: "2 veces por semana",
-                        horarios: ["Martes 10:00", "Viernes 14:00"],
-                        contenido_sugerido: ["Infografías de patrones", "Tableros de inspiración", "Guías visuales"],
-                        connected: false,
-                        apiKey: ""
-                    }
-                },
-                configuracion: {
-                    notificaciones_descanso: true,
-                    intervalo_descanso: 45, // minutos
-                    sincronizacion_automatica: true,
-                    tema: 'auto'
-                }
-            };
-            this.guardarDatos();
-        }
-    }
-
-    generarHistorialSalud() {
-        const historial = [];
-        const hoy = new Date();
-        for (let i = 29; i >= 0; i--) {
-            const fecha = new Date(hoy);
-            fecha.setDate(fecha.getDate() - i);
-            historial.push({
-                fecha: fecha.toISOString().split('T')[0],
-                dolor: Math.floor(Math.random() * 4) + 4, // 4-7
-                fatiga: Math.floor(Math.random() * 4) + 5, // 5-8
-                sueño: Math.floor(Math.random() * 4) + 5, // 5-8 horas
-                horas_trabajadas: Math.floor(Math.random() * 5) + 2, // 2-6
-                medicacion: Math.random() > 0.7,
-                clima: ['soleado', 'nublado', 'lluvioso'][Math.floor(Math.random() * 3)]
-            });
-        }
-        return historial;
-    }
-
-    configurarEventListeners() {
-        // Event delegation para elementos dinámicos
-        document.addEventListener('click', (e) => this.manejarClicks(e));
-        document.addEventListener('change', (e) => this.manejarCambios(e));
-        document.addEventListener('input', (e) => this.manejarInputs(e));
-        document.addEventListener('submit', (e) => this.manejarSubmits(e));
-
-        // Navegación sidebar
-        document.querySelectorAll('.sidebar__link').forEach(link => {
-            link.addEventListener('click', (e) => {
-                e.preventDefault();
-                const view = e.target.dataset.view;
-                this.cambiarVista(view);
-            });
-        });
-
-        // Cerrar modales con ESC
-        document.addEventListener('keydown', (e) => {
-            if (e.key === 'Escape') {
-                this.cerrarTodosLosModales();
-            }
-        });
-
-        // Configurar shortcuts de teclado
-        document.addEventListener('keydown', (e) => {
-            if (e.ctrlKey || e.metaKey) {
-                switch (e.key) {
-                    case 's':
-                        e.preventDefault();
-                        this.guardarDatos();
-                        this.mostrarNotificacion('Datos guardados', 'success');
-                        break;
-                    case 'n':
-                        e.preventDefault();
-                        if (this.currentView === 'tareas') {
-                            this.abrirModalTarea();
-                        }
-                        break;
-                }
-            }
-        });
-    }
-
-    manejarClicks(e) {
-        const target = e.target;
-
-        // Navegación
-        if (target.matches('.sidebar__link')) {
-            const view = target.dataset.view;
-            this.cambiarVista(view);
-        }
-
-        // Botones de salud
-        if (target.matches('#healthRegisterBtn')) {
-            this.registrarSalud();
-        }
-
-        // Gestión de tareas
-        if (target.matches('#addTaskBtn')) {
-            this.abrirModalTarea();
-        }
-
-        if (target.matches('.edit-task-btn')) {
-            const taskId = parseInt(target.dataset.taskId);
-            this.abrirModalTarea(taskId);
-        }
-
-        if (target.matches('.delete-task-btn')) {
-            const taskId = parseInt(target.dataset.taskId);
-            this.eliminarTarea(taskId);
-        }
-
-        if (target.matches('.view-md-btn')) {
-            const mdFile = target.dataset.mdFile;
-            this.abrirVisorMarkdown(mdFile);
-        }
-
-        // Modales
-        if (target.matches('#closeTaskModal') || target.matches('#cancelTask')) {
-            this.cerrarModalTarea();
-        }
-
-        if (target.matches('.modal-overlay')) {
-            this.cerrarTodosLosModales();
-        }
-
-        // Archivos
-        if (target.matches('#loadCSV')) {
-            this.abrirCargadorCSV();
-        }
-
-        if (target.matches('#exportCSV')) {
-            this.exportarCSV();
-        }
-
-        if (target.matches('#loadMD')) {
-            this.abrirCargadorMD();
-        }
-
-        if (target.matches('#syncData')) {
-            this.sincronizarDatos();
-        }
-
-        // Timeline
-        if (target.matches('#prevWeek')) {
-            this.cambiarSemana(-1);
-        }
-
-        if (target.matches('#nextWeek')) {
-            this.cambiarSemana(1);
-        }
-
-        // Markdown
-        if (target.matches('.tab-btn')) {
-            const tab = target.dataset.tab;
-            this.cambiarTabMarkdown(tab);
-        }
-
-        if (target.matches('#saveMarkdown')) {
-            this.guardarMarkdown();
-        }
-
-        if (target.matches('#newMarkdownFile')) {
-            this.nuevoArchivoMarkdown();
-        }
-
-        // Redes sociales
-        if (target.matches('.connect-social-btn')) {
-            const platform = target.dataset.platform;
-            this.conectarRedSocial(platform);
-        }
-    }
-
-    manejarCambios(e) {
-        const target = e.target;
-
-        // Filtros de tareas
-        if (target.matches('#searchTasks') || target.matches('#filterModule') || target.matches('#filterStatus')) {
-            this.filtrarTareas();
-        }
-
-        // Progress de tareas inline
-        if (target.matches('.task-progress-input')) {
-            const taskId = parseInt(target.dataset.taskId);
-            const newProgress = parseInt(target.value);
-            this.actualizarProgresoTarea(taskId, newProgress);
-        }
-
-        // Selección de archivo MD
-        if (target.matches('#mdFileSelect')) {
-            this.cargarArchivoMarkdown(target.value);
-        }
-    }
-
-    manejarInputs(e) {
-        const target = e.target;
-
-        // Sliders de salud
-        if (target.matches('#dolorSlider')) {
-            document.getElementById('dolorValue').textContent = target.value;
-        }
-
-        if (target.matches('#fatigaSlider')) {
-            document.getElementById('fatigaValue').textContent = target.value;
-        }
-
-        if (target.matches('#suenoSlider')) {
-            document.getElementById('suenoValue').textContent = target.value;
-        }
-
-        // Progress slider en modal
-        if (target.matches('#taskProgress')) {
-            document.getElementById('taskProgressValue').textContent = target.value + '%';
-        }
-
-        // Editor markdown con autoguardado
-        if (target.matches('#markdownEditor')) {
-            clearTimeout(this.markdownSaveTimeout);
-            this.markdownSaveTimeout = setTimeout(() => {
-                this.autoguardarMarkdown();
-            }, 2000);
-        }
-    }
-
-    manejarSubmits(e) {
-        e.preventDefault();
-
-        if (e.target.matches('#healthForm')) {
-            this.registrarSalud();
-        }
-
-        if (e.target.matches('#taskForm')) {
-            this.guardarTarea();
-        }
-    }
-
-    // Gestión de vistas
-    inicializarVistas() {
-        this.cambiarVista('dashboard');
-        this.poblarFiltroModulos();
-        this.renderizarGraficos();
-        this.renderizarTimeline();
-        this.renderizarCalendarioSocial();
-    }
-
-    cambiarVista(vista) {
-        // Ocultar todas las vistas
-        document.querySelectorAll('.view').forEach(view => {
-            view.classList.remove('active');
-        });
-
-        // Mostrar vista seleccionada
-        const viewElement = document.getElementById(`${vista}-view`);
-        if (viewElement) {
-            viewElement.classList.add('active');
-        }
-
-        // Actualizar navegación
-        document.querySelectorAll('.sidebar__link').forEach(link => {
-            link.classList.remove('active');
-            if (link.dataset.view === vista) {
-                link.classList.add('active');
-            }
-        });
-
-        this.currentView = vista;
-
-        // Actualizar contenido específico de la vista
-        switch (vista) {
-            case 'dashboard':
-                this.actualizarDashboard();
-                break;
-            case 'salud':
-                this.actualizarVistasSalud();
-                break;
-            case 'tareas':
-                this.renderizarTareas();
-                break;
-            case 'timeline':
-                this.renderizarTimeline();
-                break;
-            case 'markdown':
-                this.actualizarListaArchivosMarkdown();
-                break;
-            case 'redes':
-                this.renderizarCalendarioSocial();
-                break;
-        }
-    }
-
-    // Gestión de Salud Específica para Fibromialgia
-    registrarSalud() {
-        const dolor = parseInt(document.getElementById('dolorSlider').value);
-        const fatiga = parseInt(document.getElementById('fatigaSlider').value);
-        const sueño = parseInt(document.getElementById('suenoSlider').value);
-        const medicacion = document.getElementById('medicacionCheck')?.checked || false;
-        const clima = document.getElementById('climaSelect')?.value || 'soleado';
+        this.tasks = [];
+        this.healthRecords = [];
+        this.mdFiles = [];
+        this.socialAccounts = {};
+        this.workTimer = null;
+        this.breakTimer = null;
+        this.isWorking = false;
+        this.workStartTime = null;
+        this.breakStartTime = null;
         
-        const hoy = new Date().toISOString().split('T')[0];
+        this.init();
+    }
 
-        // Buscar si ya existe registro de hoy
-        const indiceExistente = this.datos.salud.findIndex(registro => registro.fecha === hoy);
+    async init() {
+        await this.loadData();
+        this.setupEventListeners();
+        this.generateContentSuggestions();
+        this.startHealthMonitoring();
+        this.updateDashboard();
+        this.scanMdFiles();
+        this.setupBreakReminders();
+    }
 
-        const nuevoRegistro = {
-            fecha: hoy,
-            dolor,
-            fatiga,
-            sueño,
-            medicacion,
-            clima,
-            horas_trabajadas: 0,
+    // Gestión de Datos y LocalStorage
+    async loadData() {
+        try {
+            const savedTasks = localStorage.getItem('bargello_tasks');
+            const savedHealth = localStorage.getItem('bargello_health');
+            const savedSocial = localStorage.getItem('bargello_social');
+            const savedMdFiles = localStorage.getItem('bargello_mdfiles');
+
+            if (savedTasks) this.tasks = JSON.parse(savedTasks);
+            if (savedHealth) this.healthRecords = JSON.parse(savedHealth);
+            if (savedSocial) this.socialAccounts = JSON.parse(savedSocial);
+            if (savedMdFiles) this.mdFiles = JSON.parse(savedMdFiles);
+
+            // Cargar CSV por defecto si existe
+            try {
+                const response = await fetch('data/taller_bargello_completo_detallado.csv');
+                if (response.ok) {
+                    const csvData = await response.text();
+                    this.parseCSV(csvData);
+                }
+            } catch (error) {
+                console.log('No se encontró CSV por defecto');
+            }
+        } catch (error) {
+            console.error('Error loading data:', error);
+        }
+    }
+
+    saveData() {
+        try {
+            localStorage.setItem('bargello_tasks', JSON.stringify(this.tasks));
+            localStorage.setItem('bargello_health', JSON.stringify(this.healthRecords));
+            localStorage.setItem('bargello_social', JSON.stringify(this.socialAccounts));
+            localStorage.setItem('bargello_mdfiles', JSON.stringify(this.mdFiles));
+            
+            // Auto-backup cada 5 minutos
+            clearTimeout(this.backupTimer);
+            this.backupTimer = setTimeout(() => this.createBackup(), 300000);
+        } catch (error) {
+            console.error('Error saving data:', error);
+        }
+    }
+
+    createBackup() {
+        const backup = {
+            tasks: this.tasks,
+            health: this.healthRecords,
+            social: this.socialAccounts,
+            mdFiles: this.mdFiles,
             timestamp: new Date().toISOString()
         };
-
-        if (indiceExistente !== -1) {
-            // Preservar horas trabajadas si ya existían
-            nuevoRegistro.horas_trabajadas = this.datos.salud[indiceExistente].horas_trabajadas;
-            this.datos.salud[indiceExistente] = nuevoRegistro;
-        } else {
-            this.datos.salud.push(nuevoRegistro);
-        }
-
-        // Mantener solo últimos 30 días
-        this.datos.salud = this.datos.salud.slice(-30);
-
-        this.guardarDatos();
-        this.actualizarEstadoSalud();
-        this.renderizarGraficoSalud();
-        this.mostrarNotificacion('Registro de salud guardado correctamente', 'success');
-
-        // Calcular y mostrar recomendaciones
-        this.calcularRecomendaciones(dolor, fatiga, sueño, medicacion);
         
-        // Ajustar notificaciones de descanso
-        this.ajustarNotificacionesDescanso(dolor, fatiga);
-    }
-
-    calcularCapacidadTrabajo(dolor, fatiga, sueño, medicacion = false) {
-        let baseHoras = 6; // Reducido para fibromialgia
-
-        // Reducción por dolor (más agresiva)
-        if (dolor >= 8) baseHoras -= 4;
-        else if (dolor >= 6) baseHoras -= (dolor - 5) * 0.8;
-        else if (dolor >= 4) baseHoras -= (dolor - 3) * 0.4;
-
-        // Reducción por fatiga
-        if (fatiga >= 8) baseHoras -= 3;
-        else if (fatiga >= 6) baseHoras -= (fatiga - 5) * 0.6;
-        else if (fatiga >= 4) baseHoras -= (fatiga - 3) * 0.3;
-
-        // Ajuste por sueño
-        if (sueño < 4) baseHoras -= 2;
-        else if (sueño < 6) baseHoras -= 1;
-        else if (sueño > 7) baseHoras += 0.5;
-
-        // Bonus por medicación
-        if (medicacion && dolor >= 6) baseHoras += 0.5;
-
-        return Math.max(1, Math.min(baseHoras, 7));
-    }
-
-    calcularRecomendaciones(dolor, fatiga, sueño, medicacion = false) {
-        const capacidad = this.calcularCapacidadTrabajo(dolor, fatiga, sueño, medicacion);
-        let recomendacion = '';
-        let tareasSugeridas = [];
-        let tipoActividad = '';
-
-        if (capacidad <= 2) {
-            recomendacion = 'Día de descanso - Solo actividades muy ligeras';
-            tipoActividad = 'descanso';
-            tareasSugeridas = this.datos.tareas.filter(t => 
-                t.duracion_estimada <= 1 && 
-                t.estado !== 'completado' &&
-                (!t.dolor_requerido || t.dolor_requerido >= dolor)
-            ).slice(0, 1);
-        } else if (capacidad <= 3) {
-            recomendacion = 'Capacidad baja - Tareas administrativas ligeras';
-            tipoActividad = 'administrativo';
-            tareasSugeridas = this.datos.tareas.filter(t => 
-                t.duracion_estimada <= 2 && 
-                t.estado !== 'completado' &&
-                t.seccion !== 'Bordado Práctico'
-            ).slice(0, 2);
-        } else if (capacidad <= 4) {
-            recomendacion = 'Capacidad moderada - Documentación y lectura';
-            tipoActividad = 'moderado';
-            tareasSugeridas = this.datos.tareas.filter(t => 
-                t.duracion_estimada <= 4 && 
-                t.estado !== 'completado'
-            ).slice(0, 3);
-        } else if (capacidad <= 5) {
-            recomendacion = 'Buen día - Trabajo moderado, bordado ligero posible';
-            tipoActividad = 'activo';
-            tareasSugeridas = this.datos.tareas.filter(t => 
-                t.duracion_estimada <= 6 && 
-                t.estado !== 'completado'
-            ).slice(0, 4);
-        } else {
-            recomendacion = 'Excelente capacidad - Día completo de trabajo';
-            tipoActividad = 'completo';
-            tareasSugeridas = this.datos.tareas.filter(t => 
-                t.estado !== 'completado'
-            ).slice(0, 5);
-        }
-
-        // Actualizar UI
-        const workCapacityEl = document.getElementById('workCapacity');
-        if (workCapacityEl) {
-            workCapacityEl.innerHTML = `
-                <div class="capacity-info">
-                    <h4>Capacidad estimada: ${capacidad.toFixed(1)} horas</h4>
-                    <p class="capacity-recommendation ${tipoActividad}">${recomendacion}</p>
-                    <div class="capacity-bar">
-                        <div class="capacity-fill" style="width: ${(capacidad/7)*100}%"></div>
-                    </div>
-                </div>
-            `;
-        }
-
-        // Actualizar tareas sugeridas
-        this.renderizarTareasSugeridas(tareasSugeridas, capacidad);
-    }
-
-    renderizarTareasSugeridas(tareas, capacidad) {
-        const container = document.getElementById('suggestedTasks');
-        if (!container) return;
-
-        if (tareas.length === 0) {
-            container.innerHTML = '<p>No hay tareas apropiadas para tu nivel de energía actual.</p>';
-            return;
-        }
-
-        const html = tareas.map(tarea => `
-            <div class="suggested-task" data-task-id="${tarea.id}">
-                <h5>${tarea.nombre}</h5>
-                <p class="task-duration">Duración: ${tarea.duracion_estimada}h</p>
-                <p class="task-module">Módulo ${tarea.modulo}</p>
-                <div class="task-progress-mini">
-                    <span>${tarea.progreso}% completado</span>
-                    <div class="progress-bar-mini">
-                        <div class="progress-fill" style="width: ${tarea.progreso}%"></div>
-                    </div>
-                </div>
-                <button class="btn btn--sm btn--primary start-task-btn" data-task-id="${tarea.id}">
-                    Trabajar en esta tarea
-                </button>
-            </div>
-        `).join('');
-
-        container.innerHTML = `
-            <h4>Tareas recomendadas para hoy:</h4>
-            <div class="suggested-tasks-grid">
-                ${html}
-            </div>
-        `;
-    }
-
-    actualizarEstadoSalud() {
-        const hoy = new Date().toISOString().split('T')[0];
-        const registroHoy = this.datos.salud.find(r => r.fecha === hoy);
+        const backupString = JSON.stringify(backup, null, 2);
+        const blob = new Blob([backupString], { type: 'application/json' });
+        const url = URL.createObjectURL(blob);
         
-        const statusEl = document.getElementById('currentHealthStatus');
-        if (!statusEl) return;
-
-        if (registroHoy) {
-            const capacidad = this.calcularCapacidadTrabajo(
-                registroHoy.dolor, 
-                registroHoy.fatiga, 
-                registroHoy.sueño, 
-                registroHoy.medicacion
-            );
-            
-            statusEl.innerHTML = `
-                <div class="health-status-current">
-                    <h4>Estado de hoy</h4>
-                    <div class="health-metrics">
-                        <span class="metric dolor-${registroHoy.dolor}">Dolor: ${registroHoy.dolor}/10</span>
-                        <span class="metric fatiga-${registroHoy.fatiga}">Fatiga: ${registroHoy.fatiga}/10</span>
-                        <span class="metric sueño-${registroHoy.sueño}">Sueño: ${registroHoy.sueño}h</span>
-                    </div>
-                    <p class="capacity-text">Capacidad de trabajo: ${capacidad.toFixed(1)} horas</p>
-                </div>
-            `;
-        } else {
-            statusEl.innerHTML = `
-                <div class="health-status-empty">
-                    <p>No hay registro de salud para hoy.</p>
-                    <button id="healthRegisterBtn" class="btn btn--primary">Registrar ahora</button>
-                </div>
-            `;
-        }
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `bargello_backup_${new Date().toISOString().split('T')[0]}.json`;
+        a.style.display = 'none';
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
     }
 
-    actualizarVistasSalud() {
-        // Actualizar valores de los sliders con último registro
-        const ultimoRegistro = this.datos.salud[this.datos.salud.length - 1];
-        if (ultimoRegistro) {
-            const dolorSlider = document.getElementById('dolorSlider');
-            const fatigaSlider = document.getElementById('fatigaSlider');
-            const suenoSlider = document.getElementById('suenoSlider');
-
-            if (dolorSlider) {
-                dolorSlider.value = ultimoRegistro.dolor;
-                document.getElementById('dolorValue').textContent = ultimoRegistro.dolor;
-            }
-            if (fatigaSlider) {
-                fatigaSlider.value = ultimoRegistro.fatiga;
-                document.getElementById('fatigaValue').textContent = ultimoRegistro.fatiga;
-            }
-            if (suenoSlider) {
-                suenoSlider.value = ultimoRegistro.sueño;
-                document.getElementById('suenoValue').textContent = ultimoRegistro.sueño;
-            }
+    // Configuración de Event Listeners
+    setupEventListeners() {
+        // Sistema robusto de event delegation
+        document.addEventListener('click', this.handleGlobalClick.bind(this));
+        document.addEventListener('change', this.handleGlobalChange.bind(this));
+        document.addEventListener('input', this.handleGlobalInput.bind(this));
+        
+        // Formularios
+        const healthForm = document.getElementById('healthForm');
+        if (healthForm) {
+            healthForm.addEventListener('submit', this.handleHealthSubmit.bind(this));
         }
-        this.renderizarGraficoSalud();
-    }
-
-    // Notificaciones de descanso adaptativas
-    iniciarNotificacionesDescanso() {
-        if (!this.datos.configuracion.notificaciones_descanso) return;
-
-        const hoy = new Date().toISOString().split('T')[0];
-        const registroHoy = this.datos.salud.find(r => r.fecha === hoy);
-
-        let intervalo = this.datos.configuracion.intervalo_descanso * 60 * 1000; // Default 45 min
-
-        if (registroHoy) {
-            // Ajustar intervalo según estado de salud
-            if (registroHoy.dolor >= 8 || registroHoy.fatiga >= 8) {
-                intervalo = 20 * 60 * 1000; // 20 minutos
-            } else if (registroHoy.dolor >= 6 || registroHoy.fatiga >= 6) {
-                intervalo = 30 * 60 * 1000; // 30 minutos
-            } else if (registroHoy.dolor >= 4 || registroHoy.fatiga >= 4) {
-                intervalo = 45 * 60 * 1000; // 45 minutos
-            } else {
-                intervalo = 60 * 60 * 1000; // 60 minutos
-            }
+        
+        // Carga de archivos
+        const csvUpload = document.getElementById('csvUpload');
+        if (csvUpload) {
+            csvUpload.addEventListener('change', this.handleCSVUpload.bind(this));
         }
-
-        if (this.breakInterval) {
-            clearInterval(this.breakInterval);
+        
+        const mdUpload = document.getElementById('mdUpload');
+        if (mdUpload) {
+            mdUpload.addEventListener('change', this.handleMDUpload.bind(this));
         }
-
-        this.breakInterval = setInterval(() => {
-            this.mostrarNotificacionDescanso();
-        }, intervalo);
-    }
-
-    mostrarNotificacionDescanso() {
-        if (document.hidden) return; // No mostrar si la pestaña no está activa
-
-        const modal = this.crearModalDescanso();
-        document.body.appendChild(modal);
-        modal.classList.add('show');
-
-        // Auto-cerrar después de 30 segundos
-        setTimeout(() => {
-            if (modal.parentNode) {
-                modal.remove();
-            }
-        }, 30000);
-    }
-
-    crearModalDescanso() {
-        const modal = document.createElement('div');
-        modal.className = 'modal break-modal';
-        modal.innerHTML = `
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h3>🌸 Tómate un descanso</h3>
-                    <button class="modal-close break-close" type="button">&times;</button>
-                </div>
-                <div class="modal-body">
-                    <p>Es hora de hacer una pausa para cuidar tu bienestar.</p>
-                    <div class="break-suggestions">
-                        <h4>Actividades sugeridas:</h4>
-                        <ul>
-                            <li>🧘‍♀️ Respiración profunda (2-3 minutos)</li>
-                            <li>🤸‍♀️ Estiramientos suaves para cuello y hombros</li>
-                            <li>👀 Ejercicios oculares</li>
-                            <li>🚶‍♀️ Caminar un poco</li>
-                            <li>💧 Beber agua</li>
-                        </ul>
-                    </div>
-                    <div class="break-duration">
-                        <label>Duración del descanso:</label>
-                        <select id="breakDuration">
-                            <option value="5">5 minutos</option>
-                            <option value="10" selected>10 minutos</option>
-                            <option value="15">15 minutos</option>
-                            <option value="20">20 minutos</option>
-                        </select>
-                    </div>
-                </div>
-                <div class="modal-footer">
-                    <button class="btn btn--secondary break-close">Ya descansé</button>
-                    <button class="btn btn--primary start-break-timer">Iniciar temporizador</button>
-                </div>
-            </div>
-        `;
-
-        // Event listeners para el modal de descanso
-        modal.addEventListener('click', (e) => {
-            if (e.target.matches('.break-close') || e.target === modal) {
-                modal.remove();
-            }
-            if (e.target.matches('.start-break-timer')) {
-                this.iniciarTemporizadorDescanso(modal);
-            }
+        
+        // Prevencion de pérdida de datos
+        window.addEventListener('beforeunload', () => {
+            this.saveData();
         });
-
-        return modal;
-    }
-
-    iniciarTemporizadorDescanso(modal) {
-        const duration = parseInt(document.getElementById('breakDuration').value) * 60; // segundos
-        let remaining = duration;
-
-        const timerEl = document.createElement('div');
-        timerEl.className = 'break-timer';
         
-        const updateTimer = () => {
-            const minutes = Math.floor(remaining / 60);
-            const seconds = remaining % 60;
-            timerEl.innerHTML = `
-                <h4>Tiempo de descanso: ${minutes}:${seconds.toString().padStart(2, '0')}</h4>
-                <div class="timer-progress">
-                    <div class="timer-fill" style="width: ${((duration - remaining) / duration) * 100}%"></div>
-                </div>
-            `;
-        };
-
-        modal.querySelector('.modal-body').appendChild(timerEl);
-        updateTimer();
-
-        const interval = setInterval(() => {
-            remaining--;
-            updateTimer();
-
-            if (remaining <= 0) {
-                clearInterval(interval);
-                this.mostrarNotificacion('¡Descanso completado! 💪', 'success');
-                modal.remove();
-            }
-        }, 1000);
+        // Auto-save cada 30 segundos
+        setInterval(() => this.saveData(), 30000);
     }
 
-    ajustarNotificacionesDescanso(dolor, fatiga) {
-        // Reiniciar notificaciones con nuevo intervalo basado en estado actual
-        this.iniciarNotificacionesDescanso();
+    handleGlobalClick(event) {
+        const target = event.target;
+        const button = target.closest('button');
+        
+        if (!button) return;
+        
+        const id = button.id;
+        const className = button.className;
+        
+        // Quick health button
+        if (id === 'quickHealthBtn') {
+            this.showQuickHealthDialog();
+        }
+        // Add new task
+        else if (id === 'addNewTaskBtn') {
+            this.showNewTaskModal();
+        }
+        // Export CSV
+        else if (id === 'exportCsvBtn') {
+            this.exportToCSV();
+        }
+        // Save social accounts
+        else if (id === 'saveSocialAccountsBtn') {
+            this.saveSocialAccounts();
+        }
+        // Scan MD files
+        else if (id === 'scanMdFilesBtn') {
+            this.scanMdFiles();
+        }
+        // Break reminders
+        else if (id === 'startBreakBtn') {
+            this.startBreak();
+        }
+        else if (id === 'postponeBreakBtn') {
+            this.postponeBreak();
+        }
+        else if (id === 'finishBreakBtn') {
+            this.finishBreak();
+        }
+        // Save new task
+        else if (id === 'saveNewTaskBtn') {
+            this.saveNewTask();
+        }
+        // Task actions
+        else if (button.dataset.action === 'edit-task') {
+            this.editTask(button.dataset.taskId);
+        }
+        else if (button.dataset.action === 'delete-task') {
+            this.deleteTask(button.dataset.taskId);
+        }
+        // MD file actions
+        else if (button.dataset.action === 'open-md') {
+            this.openMdFile(button.dataset.filename);
+        }
+        // Save MD
+        else if (id === 'saveMdBtn') {
+            this.saveMdFile();
+        }
+        // Timeline view changes
+        else if (id === 'timelineDaily' || id === 'timelineWeekly' || id === 'timelineMonthly') {
+            this.updateTimelineView(id.replace('timeline', '').toLowerCase());
+        }
+    }
+
+    handleGlobalChange(event) {
+        const target = event.target;
+        const id = target.id;
+        
+        // Filtros de tareas
+        if (id === 'taskSearch' || id === 'moduleFilter' || id === 'statusFilter') {
+            this.filterTasks();
+        }
+        // Rangos de salud
+        else if (id === 'painLevel') {
+            document.getElementById('painValue').textContent = target.value;
+        }
+        else if (id === 'fatigueLevel') {
+            document.getElementById('fatigueValue').textContent = target.value;
+        }
+        else if (id === 'sleepQuality') {
+            document.getElementById('sleepValue').textContent = target.value;
+        }
+        // Progress range in new task modal
+        else if (id === 'taskProgress') {
+            document.getElementById('taskProgressValue').textContent = target.value + '%';
+        }
+    }
+
+    handleGlobalInput(event) {
+        const target = event.target;
+        
+        // Búsqueda de MD files
+        if (target.id === 'mdSearch') {
+            this.filterMdFiles();
+        }
+    }
+
+    // Gestión de Salud
+    async handleHealthSubmit(event) {
+        event.preventDefault();
+        
+        const painLevel = parseInt(document.getElementById('painLevel').value);
+        const fatigueLevel = parseInt(document.getElementById('fatigueLevel').value);
+        const sleepQuality = parseInt(document.getElementById('sleepQuality').value);
+        const notes = document.getElementById('healthNotes').value;
+        
+        const healthRecord = {
+            id: Date.now().toString(),
+            date: new Date().toISOString().split('T')[0],
+            timestamp: new Date().toISOString(),
+            pain: painLevel,
+            fatigue: fatigueLevel,
+            sleep: sleepQuality,
+            notes: notes,
+            recommendedHours: this.calculateWorkCapacity(painLevel, fatigueLevel, sleepQuality)
+        };
+        
+        // Remover registro del mismo día si existe
+        this.healthRecords = this.healthRecords.filter(record => record.date !== healthRecord.date);
+        this.healthRecords.push(healthRecord);
+        
+        // Mantener solo 30 días
+        this.healthRecords = this.healthRecords.slice(-30);
+        
+        this.saveData();
+        this.updateHealthRecommendations(healthRecord);
+        this.updateDashboard();
+        
+        // Mostrar confirmación
+        this.showAlert('Registro de salud guardado correctamente', 'success');
+        
+        // Limpiar formulario
+        document.getElementById('healthForm').reset();
+        document.getElementById('painValue').textContent = '5';
+        document.getElementById('fatigueValue').textContent = '5';
+        document.getElementById('sleepValue').textContent = '7';
+    }
+
+    calculateWorkCapacity(pain, fatigue, sleep) {
+        let baseHours = 6; // Jornada base adaptada para fibromialgia
+        
+        // Reducción por dolor
+        if (pain > 6) baseHours -= (pain - 6) * 0.8;
+        else if (pain <= 3) baseHours += 0.5;
+        
+        // Reducción por fatiga
+        if (fatigue > 7) baseHours -= (fatigue - 7) * 1.0;
+        else if (fatiga <= 3) baseHours += 0.3;
+        
+        // Ajuste por sueño
+        if (sleep < 5) baseHours -= (5 - sleep) * 0.4;
+        else if (sleep > 8) baseHours += 0.3;
+        
+        return Math.max(1, Math.min(8, baseHours));
+    }
+
+    updateHealthRecommendations(record) {
+        const container = document.getElementById('recommendationsText');
+        if (!container) return;
+        
+        let recommendations = [];
+        let alertClass = 'alert-info';
+        
+        if (record.pain >= 8 || record.fatigue >= 8) {
+            alertClass = 'alert-danger';
+            recommendations.push('🚨 Día de descanso prioritario. Máximo 2 horas de trabajo liviano.');
+            recommendations.push('💊 Considerar medicación de rescate si está disponible.');
+            recommendations.push('🛀 Técnicas de relajación: baño caliente, meditación, música suave.');
+        } else if (record.pain >= 6 || record.fatigue >= 6) {
+            alertClass = 'alert-warning';
+            recommendations.push('⚠️ Jornada reducida: ' + record.recommendedHours.toFixed(1) + ' horas máximo.');
+            recommendations.push('⏰ Descansos obligatorios cada 30 minutos.');
+            recommendations.push('🎯 Enfocar en tareas administrativas o de bajo esfuerzo físico.');
+        } else if (record.pain <= 4 && record.fatigue <= 4) {
+            alertClass = 'alert-success';
+            recommendations.push('✅ Día favorable para productividad.');
+            recommendations.push('🎯 Puedes abordar tareas de bordado y video.');
+            recommendations.push('⏰ Descansos cada 45 minutos.');
+        } else {
+            recommendations.push('📊 Jornada moderada: ' + record.recommendedHours.toFixed(1) + ' horas.');
+            recommendations.push('🎯 Combinar tareas creativas con administrativas.');
+            recommendations.push('⏰ Descansos cada 40 minutos.');
+        }
+        
+        if (record.sleep < 6) {
+            recommendations.push('😴 Priorizar descanso adicional hoy.');
+        }
+        
+        container.className = `alert ${alertClass}`;
+        container.innerHTML = recommendations.join('<br>');
+        
+        // Actualizar métricas del dashboard
+        document.getElementById('healthLevel').textContent = Math.max(record.pain, record.fatigue);
+        document.getElementById('recommendedHours').textContent = record.recommendedHours.toFixed(1) + 'h';
+        
+        // Configurar recordatorios de descanso basados en el estado
+        this.configureBreakReminders(record);
+    }
+
+    // Sistema de Recordatorios de Descanso
+    configureBreakReminders(healthRecord) {
+        const avgLevel = (healthRecord.pain + healthRecord.fatigue) / 2;
+        let reminderInterval;
+        
+        if (avgLevel >= 8) {
+            reminderInterval = 20 * 60 * 1000; // 20 minutos
+        } else if (avgLevel >= 6) {
+            reminderInterval = 30 * 60 * 1000; // 30 minutos
+        } else if (avgLevel >= 4) {
+            reminderInterval = 40 * 60 * 1000; // 40 minutos
+        } else {
+            reminderInterval = 45 * 60 * 1000; // 45 minutos
+        }
+        
+        this.breakReminderInterval = reminderInterval;
+        this.resetBreakTimer();
+    }
+
+    setupBreakReminders() {
+        // Configuración por defecto si no hay registro de salud
+        this.breakReminderInterval = 45 * 60 * 1000; // 45 minutos por defecto
+        this.resetBreakTimer();
+    }
+
+    resetBreakTimer() {
+        if (this.breakTimer) {
+            clearTimeout(this.breakTimer);
+        }
+        
+        this.breakTimer = setTimeout(() => {
+            this.showBreakReminder();
+        }, this.breakReminderInterval);
+        
+        this.workStartTime = Date.now();
+    }
+
+    showBreakReminder() {
+        const reminderDiv = document.getElementById('breakReminder');
+        if (reminderDiv) {
+            const workMinutes = Math.round((Date.now() - this.workStartTime) / 60000);
+            document.getElementById('workTime').textContent = workMinutes;
+            reminderDiv.classList.remove('d-none');
+            
+            // Notificación del navegador si están permitidas
+            if (Notification.permission === 'granted') {
+                new Notification('¡Hora del Descanso!', {
+                    body: `Has trabajado ${workMinutes} minutos. Es momento de descansar.`,
+                    icon: '/favicon.ico'
+                });
+            }
+        }
+    }
+
+    startBreak() {
+        const reminderDiv = document.getElementById('breakReminder');
+        if (reminderDiv) {
+            reminderDiv.classList.add('d-none');
+        }
+        
+        const breakModal = new bootstrap.Modal(document.getElementById('breakModal'));
+        breakModal.show();
+        
+        this.breakStartTime = Date.now();
+        this.startBreakCountdown();
+    }
+
+    startBreakCountdown() {
+        const breakDuration = 15 * 60 * 1000; // 15 minutos
+        const progressBar = document.getElementById('breakProgressBar');
+        const timeLeft = document.getElementById('breakTimeLeft');
+        
+        const updateCountdown = () => {
+            const elapsed = Date.now() - this.breakStartTime;
+            const remaining = Math.max(0, breakDuration - elapsed);
+            
+            const minutes = Math.floor(remaining / 60000);
+            const seconds = Math.floor((remaining % 60000) / 1000);
+            
+            timeLeft.textContent = `${minutes}:${seconds.toString().padStart(2, '0')}`;
+            
+            const progress = ((breakDuration - remaining) / breakDuration) * 100;
+            progressBar.style.width = progress + '%';
+            
+            if (remaining > 0) {
+                setTimeout(updateCountdown, 1000);
+            } else {
+                this.finishBreak();
+            }
+        };
+        
+        updateCountdown();
+    }
+
+    postponeBreak() {
+        const reminderDiv = document.getElementById('breakReminder');
+        if (reminderDiv) {
+            reminderDiv.classList.add('d-none');
+        }
+        
+        // Posponer 10 minutos
+        this.breakTimer = setTimeout(() => {
+            this.showBreakReminder();
+        }, 10 * 60 * 1000);
+    }
+
+    finishBreak() {
+        const breakModal = bootstrap.Modal.getInstance(document.getElementById('breakModal'));
+        if (breakModal) {
+            breakModal.hide();
+        }
+        
+        this.resetBreakTimer();
+        this.showAlert('¡Descanso completado! A seguir trabajando.', 'success');
     }
 
     // Gestión de Tareas
-    abrirModalTarea(taskId = null) {
-        this.editingTaskId = taskId;
-        const modal = document.getElementById('taskModal');
-        const title = document.getElementById('taskModalTitle');
+    showNewTaskModal() {
+        const modal = new bootstrap.Modal(document.getElementById('newTaskModal'));
         
-        if (!modal) return;
-
-        if (taskId) {
-            title.textContent = 'Editar Tarea';
-            this.cargarDatosTarea(taskId);
-        } else {
-            title.textContent = 'Nueva Tarea';
-            this.limpiarFormularioTarea();
+        // Poblar módulos
+        const moduleSelect = document.getElementById('taskModule');
+        moduleSelect.innerHTML = '<option value="">Seleccionar módulo</option>';
+        
+        for (let i = 0; i <= 13; i++) {
+            const option = document.createElement('option');
+            option.value = i;
+            option.textContent = i === 0 ? 'Biblioteca Base' : `Módulo ${i}`;
+            moduleSelect.appendChild(option);
         }
-
-        modal.classList.add('show');
+        
+        // Fecha por defecto
+        const today = new Date().toISOString().split('T')[0];
+        document.getElementById('taskStartDate').value = today;
+        
+        modal.show();
     }
 
-    cerrarModalTarea() {
-        const modal = document.getElementById('taskModal');
-        if (modal) {
-            modal.classList.remove('show');
-        }
-        this.editingTaskId = null;
-    }
-
-    cerrarTodosLosModales() {
-        document.querySelectorAll('.modal').forEach(modal => {
-            modal.classList.remove('show');
-            if (modal.classList.contains('break-modal')) {
-                modal.remove();
-            }
-        });
-    }
-
-    cargarDatosTarea(taskId) {
-        const tarea = this.datos.tareas.find(t => t.id === taskId);
-        if (!tarea) return;
-
-        const form = document.getElementById('taskForm');
-        if (!form) return;
-
-        // Cargar datos en el formulario
-        const fields = {
-            'taskName': tarea.nombre,
-            'taskDescription': tarea.descripcion,
-            'taskModule': tarea.modulo,
-            'taskSection': tarea.seccion,
-            'taskStartDate': tarea.fecha_inicio,
-            'taskEndDate': tarea.fecha_limite,
-            'taskDuration': tarea.duracion_estimada,
-            'taskPriority': tarea.prioridad,
-            'taskStatus': tarea.estado,
-            'taskProgress': tarea.progreso,
-            'taskResponsible': tarea.responsable,
-            'taskNotes': tarea.notas
+    saveNewTask() {
+        const form = document.getElementById('newTaskForm');
+        const formData = new FormData(form);
+        
+        const task = {
+            id: Date.now().toString(),
+            name: document.getElementById('taskName').value,
+            description: document.getElementById('taskDescription').value,
+            module: document.getElementById('taskModule').value,
+            section: document.getElementById('taskSection').value,
+            priority: document.getElementById('taskPriority').value,
+            startDate: document.getElementById('taskStartDate').value,
+            dueDate: document.getElementById('taskDueDate').value,
+            duration: parseFloat(document.getElementById('taskDuration').value) || 0,
+            progress: parseInt(document.getElementById('taskProgress').value) || 0,
+            status: 'pending',
+            notes: document.getElementById('taskNotes').value,
+            createdAt: new Date().toISOString(),
+            updatedAt: new Date().toISOString()
         };
-
-        Object.entries(fields).forEach(([fieldId, value]) => {
-            const field = document.getElementById(fieldId);
-            if (field) {
-                field.value = value;
-            }
-        });
-
-        // Actualizar display de progreso
-        const progressValue = document.getElementById('taskProgressValue');
-        if (progressValue) {
-            progressValue.textContent = tarea.progreso + '%';
-        }
+        
+        this.tasks.push(task);
+        this.saveData();
+        this.updateTasksTable();
+        this.updateDashboard();
+        
+        // Cerrar modal
+        const modal = bootstrap.Modal.getInstance(document.getElementById('newTaskModal'));
+        modal.hide();
+        
+        // Limpiar formulario
+        form.reset();
+        
+        this.showAlert('Tarea creada correctamente', 'success');
     }
 
-    limpiarFormularioTarea() {
-        const form = document.getElementById('taskForm');
-        if (form) {
-            form.reset();
-            const progressValue = document.getElementById('taskProgressValue');
-            if (progressValue) {
-                progressValue.textContent = '0%';
-            }
-            
-            const responsible = document.getElementById('taskResponsible');
-            if (responsible) {
-                responsible.value = 'Tini Sanhueza';
-            }
-        }
-    }
-
-    guardarTarea() {
-        const tarea = {
-            nombre: document.getElementById('taskName')?.value || '',
-            descripcion: document.getElementById('taskDescription')?.value || '',
-            modulo: document.getElementById('taskModule')?.value || '0',
-            seccion: document.getElementById('taskSection')?.value || '',
-            fecha_inicio: document.getElementById('taskStartDate')?.value || '',
-            fecha_limite: document.getElementById('taskEndDate')?.value || '',
-            duracion_estimada: parseInt(document.getElementById('taskDuration')?.value) || 1,
-            dependencias: '',
-            prioridad: document.getElementById('taskPriority')?.value || 'media',
-            progreso: parseInt(document.getElementById('taskProgress')?.value) || 0,
-            estado: document.getElementById('taskStatus')?.value || 'pendiente',
-            responsable: document.getElementById('taskResponsible')?.value || 'Tini Sanhueza',
-            notas: document.getElementById('taskNotes')?.value || '',
-            archivo_md: ''
-        };
-
-        // Validación básica
-        if (!tarea.nombre.trim()) {
-            this.mostrarNotificacion('El nombre de la tarea es obligatorio', 'error');
-            return;
-        }
-
-        if (this.editingTaskId) {
-            // Editar tarea existente
-            const index = this.datos.tareas.findIndex(t => t.id === this.editingTaskId);
-            if (index !== -1) {
-                tarea.id = this.editingTaskId;
-                this.datos.tareas[index] = { ...this.datos.tareas[index], ...tarea };
-                this.mostrarNotificacion('Tarea actualizada correctamente', 'success');
-            }
-        } else {
-            // Nueva tarea
-            tarea.id = Date.now();
-            this.datos.tareas.push(tarea);
-            this.mostrarNotificacion('Tarea creada correctamente', 'success');
-        }
-
-        this.guardarDatos();
-        this.renderizarTareas();
-        this.cerrarModalTarea();
-        this.actualizarDashboard();
-    }
-
-    eliminarTarea(taskId) {
-        if (confirm('¿Estás segura de que quieres eliminar esta tarea? Esta acción no se puede deshacer.')) {
-            this.datos.tareas = this.datos.tareas.filter(t => t.id !== taskId);
-            this.guardarDatos();
-            this.renderizarTareas();
-            this.mostrarNotificacion('Tarea eliminada correctamente', 'success');
-            this.actualizarDashboard();
-        }
-    }
-
-    actualizarProgresoTarea(taskId, newProgress) {
-        const tarea = this.datos.tareas.find(t => t.id === taskId);
-        if (tarea) {
-            tarea.progreso = Math.max(0, Math.min(100, newProgress));
-            if (tarea.progreso === 100 && tarea.estado !== 'completado') {
-                tarea.estado = 'completado';
-            } else if (tarea.progreso < 100 && tarea.estado === 'completado') {
-                tarea.estado = 'en progreso';
-            }
-            this.guardarDatos();
-            this.renderizarTareas();
-            this.mostrarNotificacion(`Progreso actualizado: ${tarea.progreso}%`, 'info');
-        }
-    }
-
-    renderizarTareas() {
+    updateTasksTable() {
         const tbody = document.getElementById('tasksTableBody');
         if (!tbody) return;
-
-        const tareasFiltradas = this.filtrarTareasArray();
         
-        if (tareasFiltradas.length === 0) {
-            tbody.innerHTML = `
-                <tr>
-                    <td colspan="7" class="text-center">No hay tareas que coincidan con los filtros</td>
-                </tr>
-            `;
-            return;
-        }
-
-        tbody.innerHTML = tareasFiltradas.map(tarea => `
-            <tr class="task-row ${tarea.estado}" data-task-id="${tarea.id}">
+        tbody.innerHTML = '';
+        
+        const filteredTasks = this.getFilteredTasks();
+        
+        filteredTasks.forEach(task => {
+            const row = document.createElement('tr');
+            
+            const statusClass = task.status === 'completed' ? 'success' : 
+                               task.status === 'in_progress' ? 'warning' : 'secondary';
+            
+            const priorityClass = task.priority === 'high' ? 'danger' : 
+                                 task.priority === 'medium' ? 'warning' : 'info';
+            
+            row.innerHTML = `
                 <td>
-                    <div class="task-name">
-                        <strong>${tarea.nombre}</strong>
-                        ${tarea.archivo_md ? `<button class="btn btn--sm view-md-btn" data-md-file="${tarea.archivo_md}">📄</button>` : ''}
-                    </div>
+                    <strong>${task.name}</strong>
+                    <br><small class="text-muted">${task.description || 'Sin descripción'}</small>
                 </td>
                 <td>
-                    <span class="module-badge">Módulo ${tarea.modulo}</span>
-                </td>
-                <td>
-                    <span class="status status--${tarea.estado === 'completado' ? 'success' : tarea.estado === 'en progreso' ? 'warning' : 'info'}">
-                        ${tarea.estado}
+                    <span class="badge bg-primary">
+                        ${task.module === '0' ? 'Biblioteca' : `Módulo ${task.module}`}
                     </span>
                 </td>
                 <td>
-                    <div class="task-progress">
-                        <input type="range" min="0" max="100" value="${tarea.progreso}" 
-                               class="task-progress-input" data-task-id="${tarea.id}">
-                        <span class="progress-text">${tarea.progreso}%</span>
+                    <div class="progress" style="height: 20px;">
+                        <div class="progress-bar bg-${statusClass}" 
+                             style="width: ${task.progress}%"
+                             data-task-id="${task.id}"
+                             data-editable="progress">
+                            ${task.progress}%
+                        </div>
                     </div>
                 </td>
-                <td>${tarea.fecha_limite}</td>
                 <td>
-                    <span class="priority-${tarea.prioridad}">${tarea.prioridad}</span>
+                    <span class="badge bg-${statusClass}">
+                        ${this.getStatusText(task.status)}
+                    </span>
+                    <br>
+                    <span class="badge bg-${priorityClass} mt-1">
+                        ${this.getPriorityText(task.priority)}
+                    </span>
                 </td>
-                <td class="task-actions">
-                    <button class="btn btn--sm btn--secondary edit-task-btn" data-task-id="${tarea.id}">
-                        ✏️
-                    </button>
-                    <button class="btn btn--sm btn--outline delete-task-btn" data-task-id="${tarea.id}">
-                        🗑️
-                    </button>
+                <td>
+                    <small>${task.dueDate ? new Date(task.dueDate).toLocaleDateString() : 'Sin fecha'}</small>
                 </td>
-            </tr>
-        `).join('');
+                <td>
+                    <div class="btn-group-vertical btn-group-sm">
+                        <button class="btn btn-outline-primary btn-sm" 
+                                data-action="edit-task" 
+                                data-task-id="${task.id}">
+                            <i class="fas fa-edit"></i>
+                        </button>
+                        <button class="btn btn-outline-danger btn-sm" 
+                                data-action="delete-task" 
+                                data-task-id="${task.id}">
+                            <i class="fas fa-trash"></i>
+                        </button>
+                    </div>
+                </td>
+            `;
+            
+            tbody.appendChild(row);
+        });
     }
 
-    filtrarTareasArray() {
-        let tareas = [...this.datos.tareas];
+    getFilteredTasks() {
+        const searchTerm = document.getElementById('taskSearch')?.value.toLowerCase() || '';
+        const moduleFilter = document.getElementById('moduleFilter')?.value || '';
+        const statusFilter = document.getElementById('statusFilter')?.value || '';
         
-        const searchTerm = document.getElementById('searchTasks')?.value.toLowerCase() || '';
-        const moduleFilter = document.getElementById('filterModule')?.value || '';
-        const statusFilter = document.getElementById('filterStatus')?.value || '';
-
-        if (searchTerm) {
-            tareas = tareas.filter(tarea => 
-                tarea.nombre.toLowerCase().includes(searchTerm) ||
-                tarea.descripcion.toLowerCase().includes(searchTerm) ||
-                tarea.notas.toLowerCase().includes(searchTerm)
-            );
-        }
-
-        if (moduleFilter) {
-            tareas = tareas.filter(tarea => tarea.modulo === moduleFilter);
-        }
-
-        if (statusFilter) {
-            tareas = tareas.filter(tarea => tarea.estado === statusFilter);
-        }
-
-        return tareas;
+        return this.tasks.filter(task => {
+            const matchesSearch = !searchTerm || 
+                task.name.toLowerCase().includes(searchTerm) ||
+                task.description.toLowerCase().includes(searchTerm);
+            
+            const matchesModule = !moduleFilter || task.module === moduleFilter;
+            const matchesStatus = !statusFilter || task.status === statusFilter;
+            
+            return matchesSearch && matchesModule && matchesStatus;
+        });
     }
 
-    filtrarTareas() {
-        this.renderizarTareas();
+    getStatusText(status) {
+        switch(status) {
+            case 'pending': return 'Pendiente';
+            case 'in_progress': return 'En Progreso';
+            case 'completed': return 'Completado';
+            default: return 'Desconocido';
+        }
     }
 
-    poblarFiltroModulos() {
-        const filterModule = document.getElementById('filterModule');
-        if (!filterModule) return;
+    getPriorityText(priority) {
+        switch(priority) {
+            case 'low': return 'Baja';
+            case 'medium': return 'Media';
+            case 'high': return 'Alta';
+            default: return 'Media';
+        }
+    }
 
-        const modulos = [...new Set(this.datos.tareas.map(t => t.modulo))].sort();
+    editTask(taskId) {
+        const task = this.tasks.find(t => t.id === taskId);
+        if (!task) return;
         
-        filterModule.innerHTML = `
-            <option value="">Todos los módulos</option>
-            ${modulos.map(modulo => `<option value="${modulo}">Módulo ${modulo}</option>`).join('')}
-        `;
+        // Implementar modal de edición similar al de creación
+        this.showAlert('Función de edición en desarrollo', 'info');
     }
 
-    // Gestión de archivos Markdown
-    async cargarArchivosMarkdown() {
+    deleteTask(taskId) {
+        if (confirm('¿Estás segura de que quieres eliminar esta tarea?')) {
+            this.tasks = this.tasks.filter(t => t.id !== taskId);
+            this.saveData();
+            this.updateTasksTable();
+            this.updateDashboard();
+            this.showAlert('Tarea eliminada correctamente', 'success');
+        }
+    }
+
+    filterTasks() {
+        this.updateTasksTable();
+    }
+
+    // Gestión de CSV
+    handleCSVUpload(event) {
+        const file = event.target.files[0];
+        if (!file) return;
+        
+        if (file.size > 10 * 1024 * 1024) { // 10MB limit
+            this.showAlert('El archivo es demasiado grande. Máximo 10MB.', 'error');
+            return;
+        }
+        
+        const reader = new FileReader();
+        reader.onload = (e) => {
+            try {
+                this.parseCSV(e.target.result);
+                this.showAlert('CSV cargado correctamente', 'success');
+            } catch (error) {
+                this.showAlert('Error al procesar el CSV: ' + error.message, 'error');
+            }
+        };
+        reader.readAsText(file);
+    }
+
+    parseCSV(csvData) {
+        Papa.parse(csvData, {
+            header: true,
+            skipEmptyLines: true,
+            complete: (results) => {
+                if (results.errors.length > 0) {
+                    console.warn('CSV parsing warnings:', results.errors);
+                }
+                
+                // Convertir datos CSV a formato de tareas
+                const newTasks = results.data.map((row, index) => ({
+                    id: row.id || Date.now().toString() + '_' + index,
+                    name: row.nombre || row.name || 'Tarea sin nombre',
+                    description: row.descripcion || row.description || '',
+                    module: row.modulo || row.module || '0',
+                    section: row.seccion || row.section || '',
+                    priority: row.prioridad || row.priority || 'medium',
+                    startDate: row.fecha_inicio || row.startDate || '',
+                    dueDate: row.fecha_limite || row.dueDate || '',
+                    duration: parseFloat(row.duracion_estimada || row.duration || 0),
+                    progress: parseInt(row.progreso || row.progress || 0),
+                    status: row.estado || row.status || 'pending',
+                    notes: row.notas || row.notes || '',
+                    createdAt: row.timestamp_creacion || row.createdAt || new Date().toISOString(),
+                    updatedAt: new Date().toISOString()
+                }));
+                
+                // Reemplazar tareas existentes o agregar nuevas
+                this.tasks = newTasks;
+                this.saveData();
+                this.updateTasksTable();
+                this.updateDashboard();
+            },
+            error: (error) => {
+                this.showAlert('Error al procesar CSV: ' + error.message, 'error');
+            }
+        });
+    }
+
+    exportToCSV() {
+        const csvData = Papa.unparse(this.tasks.map(task => ({
+            id: task.id,
+            nombre: task.name,
+            descripcion: task.description,
+            modulo: task.module,
+            seccion: task.section,
+            prioridad: task.priority,
+            fecha_inicio: task.startDate,
+            fecha_limite: task.dueDate,
+            duracion_estimada: task.duration,
+            progreso: task.progress,
+            estado: task.status,
+            notas: task.notes,
+            timestamp_creacion: task.createdAt,
+            timestamp_modificacion: task.updatedAt
+        })));
+        
+        const blob = new Blob([csvData], { type: 'text/csv' });
+        const url = URL.createObjectURL(blob);
+        
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `tareas_bargello_${new Date().toISOString().split('T')[0]}.csv`;
+        a.style.display = 'none';
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
+        
+        this.showAlert('CSV exportado correctamente', 'success');
+    }
+
+    // Gestión de Archivos Markdown
+    async scanMdFiles() {
         try {
-            // Intentar cargar desde list.json si existe
+            // Intentar cargar el archivo list.json si existe
             const response = await fetch('md-files/list.json');
             if (response.ok) {
                 const fileList = await response.json();
-                
-                for (const file of fileList.files) {
-                    try {
-                        const mdResponse = await fetch(`md-files/${file}`);
-                        if (mdResponse.ok) {
-                            const mdContent = await mdResponse.text();
-                            this.markdownFiles[file] = mdContent;
-                            
-                            // Agregar a datos si no existe
-                            const existingFile = this.datos.archivos_md.find(f => f.nombre === file);
-                            if (!existingFile) {
-                                this.datos.archivos_md.push({
-                                    nombre: file,
-                                    titulo: this.extraerTituloMarkdown(mdContent),
-                                    contenido: mdContent
-                                });
-                            }
-                        }
-                    } catch (e) {
-                        console.warn(`No se pudo cargar ${file}:`, e);
-                    }
-                }
-                
-                this.guardarDatos();
-                this.actualizarListaArchivosMarkdown();
+                this.mdFiles = fileList;
+            } else {
+                // Generar lista basada en patrón de archivos
+                this.generateMdFilesList();
             }
-        } catch (e) {
-            console.warn('No se encontró list.json, usando archivos MD del localStorage');
+            
+            this.updateMdFilesList();
+            this.saveData();
+        } catch (error) {
+            console.log('Generando lista de archivos MD...');
+            this.generateMdFilesList();
         }
     }
 
-    extraerTituloMarkdown(contenido) {
-        const match = contenido.match(/^#\s+(.+)$/m);
-        return match ? match[1] : 'Archivo sin título';
+    generateMdFilesList() {
+        const files = [];
+        
+        // Generar lista basada en la estructura conocida (módulos 0-13, puntos 1-12+)
+        for (let module = 0; module <= 13; module++) {
+            const maxPoints = module === 0 ? 17 : 12; // Biblioteca base tiene más puntos
+            
+            for (let point = 1; point <= maxPoints; point++) {
+                const filename = `modulo-${module}-punto-${point}.md`;
+                files.push({
+                    filename: filename,
+                    module: module,
+                    point: point,
+                    title: `${module === 0 ? 'Biblioteca Base' : 'Módulo ' + module} - Punto ${point}`,
+                    path: `md-files/${filename}`,
+                    lastModified: null
+                });
+            }
+        }
+        
+        this.mdFiles = files;
     }
 
-    actualizarListaArchivosMarkdown() {
-        const select = document.getElementById('mdFileSelect');
-        if (!select) return;
+    updateMdFilesList() {
+        const container = document.getElementById('mdFilesList');
+        if (!container) return;
+        
+        container.innerHTML = '';
+        
+        const filteredFiles = this.getFilteredMdFiles();
+        
+        filteredFiles.forEach(file => {
+            const item = document.createElement('a');
+            item.className = 'list-group-item list-group-item-action';
+            item.innerHTML = `
+                <div class="d-flex w-100 justify-content-between">
+                    <h6 class="mb-1">${file.title}</h6>
+                    <small class="text-muted">${file.module === 0 ? 'Base' : 'M' + file.module}</small>
+                </div>
+                <p class="mb-1">${file.filename}</p>
+                <small class="text-muted">
+                    ${file.lastModified ? 'Modificado: ' + new Date(file.lastModified).toLocaleDateString() : 'No cargado'}
+                </small>
+            `;
+            item.dataset.action = 'open-md';
+            item.dataset.filename = file.filename;
+            
+            container.appendChild(item);
+        });
+    }
 
-        select.innerHTML = `
-            <option value="">Seleccionar archivo...</option>
-            ${this.datos.archivos_md.map(archivo => `
-                <option value="${archivo.nombre}">${archivo.titulo}</option>
-            `).join('')}
+    getFilteredMdFiles() {
+        const searchTerm = document.getElementById('mdSearch')?.value.toLowerCase() || '';
+        
+        return this.mdFiles.filter(file => {
+            return !searchTerm || 
+                file.filename.toLowerCase().includes(searchTerm) ||
+                file.title.toLowerCase().includes(searchTerm);
+        });
+    }
+
+    filterMdFiles() {
+        this.updateMdFilesList();
+    }
+
+    async openMdFile(filename) {
+        try {
+            const response = await fetch(`md-files/${filename}`);
+            if (response.ok) {
+                const content = await response.text();
+                document.getElementById('mdEditor').value = content;
+                document.getElementById('currentMdFile').value = filename;
+                
+                // Activar tab de markdown
+                const markdownTab = document.querySelector('[data-bs-target="#markdown-tab"]');
+                if (markdownTab) {
+                    markdownTab.click();
+                }
+            } else {
+                this.showAlert('No se pudo cargar el archivo: ' + filename, 'warning');
+                // Crear archivo nuevo
+                document.getElementById('mdEditor').value = `# ${filename}\n\n## Contenido\n\nEste archivo está vacío. Comienza a escribir aquí.`;
+                document.getElementById('currentMdFile').value = filename;
+            }
+        } catch (error) {
+            this.showAlert('Error al abrir archivo: ' + error.message, 'error');
+        }
+    }
+
+    handleMDUpload(event) {
+        const file = event.target.files[0];
+        if (!file || !file.name.endsWith('.md')) {
+            this.showAlert('Por favor selecciona un archivo .md válido', 'error');
+            return;
+        }
+        
+        const reader = new FileReader();
+        reader.onload = (e) => {
+            document.getElementById('mdEditor').value = e.target.result;
+            document.getElementById('currentMdFile').value = file.name;
+            
+            // Agregar a la lista si no existe
+            const exists = this.mdFiles.find(f => f.filename === file.name);
+            if (!exists) {
+                this.mdFiles.push({
+                    filename: file.name,
+                    module: 'custom',
+                    point: 0,
+                    title: file.name.replace('.md', ''),
+                    path: `md-files/${file.name}`,
+                    lastModified: new Date().toISOString()
+                });
+                
+                this.updateMdFilesList();
+                this.saveData();
+            }
+            
+            this.showAlert('Archivo MD cargado correctamente', 'success');
+        };
+        reader.readAsText(file);
+    }
+
+    saveMdFile() {
+        const filename = document.getElementById('currentMdFile').value;
+        const content = document.getElementById('mdEditor').value;
+        
+        if (!filename) {
+            this.showAlert('No hay archivo seleccionado para guardar', 'error');
+            return;
+        }
+        
+        // Simular guardado (en un entorno real, esto se enviaría al servidor)
+        localStorage.setItem(`md_file_${filename}`, content);
+        
+        // Actualizar timestamp del archivo
+        const file = this.mdFiles.find(f => f.filename === filename);
+        if (file) {
+            file.lastModified = new Date().toISOString();
+            this.updateMdFilesList();
+            this.saveData();
+        }
+        
+        this.showAlert('Archivo guardado correctamente', 'success');
+    }
+
+    // Gestión de Redes Sociales
+    saveSocialAccounts() {
+        this.socialAccounts = {
+            instagram: document.getElementById('instagramHandle').value,
+            facebook: document.getElementById('facebookPage').value,
+            tiktok: document.getElementById('tiktokHandle').value,
+            pinterest: document.getElementById('pinterestHandle').value,
+            youtube: document.getElementById('youtubeChannel').value,
+            updatedAt: new Date().toISOString()
+        };
+        
+        this.saveData();
+        this.generateContentSuggestions();
+        this.showAlert('Configuración de redes sociales guardada', 'success');
+    }
+
+    generateContentSuggestions() {
+        const container = document.getElementById('contentSuggestions');
+        if (!container) return;
+        
+        // Analizar progreso actual para generar sugerencias contextuales
+        const moduleProgress = this.getModuleProgress();
+        const recentTasks = this.getRecentCompletedTasks();
+        
+        const suggestions = this.getContextualSuggestions(moduleProgress, recentTasks);
+        
+        container.innerHTML = '';
+        
+        Object.entries(suggestions).forEach(([platform, contents]) => {
+            const platformDiv = document.createElement('div');
+            platformDiv.className = 'mb-3';
+            platformDiv.innerHTML = `
+                <h6><i class="fab fa-${platform}"></i> ${platform.charAt(0).toUpperCase() + platform.slice(1)}</h6>
+                <ul class="list-unstyled">
+                    ${contents.map(content => `<li>• ${content}</li>`).join('')}
+                </ul>
+            `;
+            container.appendChild(platformDiv);
+        });
+        
+        this.updateSocialCalendar(suggestions);
+    }
+
+    getContextualSuggestions(moduleProgress, recentTasks) {
+        const suggestions = {
+            instagram: [],
+            facebook: [],
+            tiktok: [],
+            pinterest: [],
+            youtube: []
+        };
+        
+        // Sugerencias basadas en el módulo actual
+        const currentModule = this.getCurrentModule();
+        
+        if (currentModule <= 1) {
+            suggestions.instagram.push('Time-lapse bordando el primer patrón "Point of It All"');
+            suggestions.instagram.push('Stories mostrando la configuración del espacio de bordado');
+            suggestions.facebook.push('Publicación sobre los beneficios terapéuticos del bordado Bargello');
+            suggestions.youtube.push('Tutorial: "Mis primeros pasos en el bordado Bargello"');
+            suggestions.pinterest.push('Infografía: Materiales básicos para empezar en Bargello');
+            suggestions.tiktok.push('Video rápido de 30s: "De hilo a arte" transformation');
+        } else if (currentModule <= 3) {
+            suggestions.instagram.push('Antes y después del proyecto del colgante decorativo');
+            suggestions.instagram.push('Carousel con los diferentes patrones aprendidos');
+            suggestions.facebook.push('Post educativo sobre la historia del Bargello florentino');
+            suggestions.youtube.push('Errores comunes en patrones intermedios y cómo solucionarlos');
+            suggestions.pinterest.push('Combinaciones de colores para patrones Fluid y Pine Forest');
+            suggestions.tiktok.push('Satisfying video del patrón "Plateau" en progreso');
+        } else if (currentModule <= 6) {
+            suggestions.instagram.push('Tutorial en IGTV: técnicas de escalado de patrones');
+            suggestions.instagram.push('Reel del proceso de la almohada decorativa reversible');
+            suggestions.facebook.push('Artículo sobre fibromialgia y crafting como terapia');
+            suggestions.youtube.push('Review completa: materiales especiales vs tradicionales');
+            suggestions.pinterest.push('Tablero inspiracional: Bargello en decoración moderna');
+            suggestions.tiktok.push('Speed run: completando un proyecto en tiempo récord');
+        } else {
+            suggestions.instagram.push('Showcase de todos los proyectos completados');
+            suggestions.instagram.push('Behind the scenes del estudio de bordado');
+            suggestions.facebook.push('Testimonios de alumnas y transformaciones personales');
+            suggestions.youtube.push('Masterclass avanzada: técnicas de nivel experto');
+            suggestions.pinterest.push('Galería de inspiración: Bargello contemporáneo');
+            suggestions.tiktok.push('From zero to hero: evolución en bordado Bargello');
+        }
+        
+        // Agregar sugerencias estacionales/mensuales
+        const month = new Date().getMonth();
+        if (month >= 2 && month <= 4) { // Primavera
+            suggestions.instagram.push('Paletas de primavera para tus proyectos Bargello');
+            suggestions.pinterest.push('Colores frescos de primavera en bordado');
+        } else if (month >= 5 && month <= 7) { // Verano
+            suggestions.instagram.push('Proyectos Bargello para decoración de verano');
+            suggestions.tiktok.push('Bordando en vacaciones: setup móvil');
+        } else if (month >= 8 && month <= 10) { // Otoño
+            suggestions.pinterest.push('Tonos tierra y ocre en patrones Bargello');
+            suggestions.facebook.push('Preparando proyectos para el invierno');
+        } else { // Invierno
+            suggestions.instagram.push('Cozy winter vibes: bordando junto al fuego');
+            suggestions.youtube.push('Proyectos Bargello perfectos para regalar en fiestas');
+        }
+        
+        return suggestions;
+    }
+
+    getCurrentModule() {
+        // Determinar módulo actual basado en progreso de tareas
+        const moduleProgress = {};
+        this.tasks.forEach(task => {
+            const module = parseInt(task.module) || 0;
+            if (!moduleProgress[module]) moduleProgress[module] = [];
+            moduleProgress[module].push(task.progress);
+        });
+        
+        let currentModule = 0;
+        Object.keys(moduleProgress).forEach(module => {
+            const avgProgress = moduleProgress[module].reduce((a, b) => a + b, 0) / moduleProgress[module].length;
+            if (avgProgress > 50) {
+                currentModule = Math.max(currentModule, parseInt(module));
+            }
+        });
+        
+        return currentModule;
+    }
+
+    getModuleProgress() {
+        const progress = {};
+        for (let i = 0; i <= 13; i++) {
+            const moduleTasks = this.tasks.filter(task => parseInt(task.module) === i);
+            if (moduleTasks.length > 0) {
+                const avgProgress = moduleTasks.reduce((sum, task) => sum + task.progress, 0) / moduleTasks.length;
+                progress[i] = avgProgress;
+            } else {
+                progress[i] = 0;
+            }
+        }
+        return progress;
+    }
+
+    getRecentCompletedTasks() {
+        const weekAgo = new Date();
+        weekAgo.setDate(weekAgo.getDate() - 7);
+        
+        return this.tasks.filter(task => 
+            task.status === 'completed' && 
+            new Date(task.updatedAt) > weekAgo
+        );
+    }
+
+    updateSocialCalendar(suggestions) {
+        const tbody = document.getElementById('socialCalendarBody');
+        if (!tbody) return;
+        
+        const platforms = ['instagram', 'facebook', 'tiktok', 'pinterest', 'youtube'];
+        const days = ['Lun', 'Mar', 'Mié', 'Jue', 'Vie', 'Sáb', 'Dom'];
+        
+        tbody.innerHTML = '';
+        
+        platforms.forEach(platform => {
+            const row = document.createElement('tr');
+            row.innerHTML = `
+                <td class="fw-bold text-capitalize">
+                    <i class="fab fa-${platform}"></i> ${platform}
+                </td>
+                ${days.map((day, index) => {
+                    const suggestion = suggestions[platform][index % suggestions[platform].length] || '';
+                    return `<td><small>${suggestion}</small></td>`;
+                }).join('')}
+            `;
+            tbody.appendChild(row);
+        });
+    }
+
+    // Dashboard y Visualizaciones
+    updateDashboard() {
+        this.updateMetrics();
+        this.updateCharts();
+    }
+
+    updateMetrics() {
+        const completedTasks = this.tasks.filter(task => task.status === 'completed').length;
+        const totalTasks = this.tasks.length;
+        
+        document.getElementById('completedTasks').textContent = completedTasks;
+        document.getElementById('totalTasks').textContent = totalTasks;
+        
+        // Calcular horas trabajadas hoy (simulado)
+        const hoursToday = this.calculateHoursToday();
+        document.getElementById('hoursToday').textContent = hoursToday.toFixed(1);
+        
+        // Actualizar último registro de salud
+        const lastHealth = this.healthRecords[this.healthRecords.length - 1];
+        if (lastHealth) {
+            document.getElementById('lastHealthRecord').textContent = new Date(lastHealth.timestamp).toLocaleDateString();
+        }
+        
+        // Posts en redes sociales (simulado)
+        document.getElementById('socialPosts').textContent = this.calculateWeeklyPosts();
+    }
+
+    calculateHoursToday() {
+        // Simulación basada en tareas completadas hoy
+        const today = new Date().toISOString().split('T')[0];
+        const todayTasks = this.tasks.filter(task => 
+            task.updatedAt && task.updatedAt.split('T')[0] === today
+        );
+        
+        return todayTasks.reduce((sum, task) => sum + (task.duration || 0), 0);
+    }
+
+    calculateWeeklyPosts() {
+        // Simulación de posts semanales
+        return Math.floor(this.getCurrentModule() * 1.5);
+    }
+
+    updateCharts() {
+        this.updateModuleProgressChart();
+        this.updateHealthProductivityChart();
+        this.updateHealthHistoryChart();
+    }
+
+    updateModuleProgressChart() {
+        const ctx = document.getElementById('moduleProgressChart');
+        if (!ctx) return;
+        
+        const moduleProgress = this.getModuleProgress();
+        
+        if (this.moduleChart) {
+            this.moduleChart.destroy();
+        }
+        
+        this.moduleChart = new Chart(ctx, {
+            type: 'bar',
+            data: {
+                labels: Object.keys(moduleProgress).map(m => m === '0' ? 'Base' : `M${m}`),
+                datasets: [{
+                    label: 'Progreso (%)',
+                    data: Object.values(moduleProgress),
+                    backgroundColor: [
+                        '#FF6384', '#36A2EB', '#FFCE56', '#4BC0C0',
+                        '#9966FF', '#FF9F40', '#FF6384', '#C9CBCF',
+                        '#4BC0C0', '#36A2EB', '#FFCE56', '#9966FF',
+                        '#FF9F40', '#C9CBCF'
+                    ]
+                }]
+            },
+            options: {
+                responsive: true,
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        max: 100
+                    }
+                }
+            }
+        });
+    }
+
+    updateHealthProductivityChart() {
+        const ctx = document.getElementById('healthProductivityChart');
+        if (!ctx) return;
+        
+        if (this.healthChart) {
+            this.healthChart.destroy();
+        }
+        
+        const last7Days = this.healthRecords.slice(-7);
+        
+        this.healthChart = new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: last7Days.map(record => new Date(record.date).toLocaleDateString()),
+                datasets: [
+                    {
+                        label: 'Nivel de Dolor',
+                        data: last7Days.map(record => record.pain),
+                        borderColor: '#FF6384',
+                        backgroundColor: 'rgba(255, 99, 132, 0.1)',
+                        tension: 0.4
+                    },
+                    {
+                        label: 'Nivel de Fatiga',
+                        data: last7Days.map(record => record.fatigue),
+                        borderColor: '#36A2EB',
+                        backgroundColor: 'rgba(54, 162, 235, 0.1)',
+                        tension: 0.4
+                    },
+                    {
+                        label: 'Horas Recomendadas',
+                        data: last7Days.map(record => record.recommendedHours),
+                        borderColor: '#4BC0C0',
+                        backgroundColor: 'rgba(75, 192, 192, 0.1)',
+                        tension: 0.4
+                    }
+                ]
+            },
+            options: {
+                responsive: true,
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        max: 10
+                    }
+                }
+            }
+        });
+    }
+
+    updateHealthHistoryChart() {
+        const ctx = document.getElementById('healthHistoryChart');
+        if (!ctx) return;
+        
+        if (this.historyChart) {
+            this.historyChart.destroy();
+        }
+        
+        const last30Days = this.healthRecords.slice(-30);
+        
+        this.historyChart = new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: last30Days.map(record => new Date(record.date).toLocaleDateString()),
+                datasets: [
+                    {
+                        label: 'Dolor',
+                        data: last30Days.map(record => record.pain),
+                        borderColor: '#FF6384',
+                        backgroundColor: 'rgba(255, 99, 132, 0.1)',
+                        tension: 0.4
+                    },
+                    {
+                        label: 'Fatiga',
+                        data: last30Days.map(record => record.fatigue),
+                        borderColor: '#36A2EB',
+                        backgroundColor: 'rgba(54, 162, 235, 0.1)',
+                        tension: 0.4
+                    },
+                    {
+                        label: 'Calidad Sueño',
+                        data: last30Days.map(record => record.sleep),
+                        borderColor: '#4BC0C0',
+                        backgroundColor: 'rgba(75, 192, 192, 0.1)',
+                        tension: 0.4
+                    }
+                ]
+            },
+            options: {
+                responsive: true,
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        max: 10
+                    }
+                }
+            }
+        });
+    }
+
+    // Timeline y Vista Semanal
+    updateTimelineView(view) {
+        const container = document.getElementById('timelineContainer');
+        if (!container) return;
+        
+        // Actualizar botones activos
+        document.querySelectorAll('[id^="timeline"]').forEach(btn => {
+            btn.classList.remove('active');
+        });
+        document.getElementById(`timeline${view.charAt(0).toUpperCase() + view.slice(1)}`).classList.add('active');
+        
+        // Generar vista según el tipo
+        switch(view) {
+            case 'daily':
+                this.generateDailyTimeline(container);
+                break;
+            case 'weekly':
+                this.generateWeeklyTimeline(container);
+                break;
+            case 'monthly':
+                this.generateMonthlyTimeline(container);
+                break;
+        }
+    }
+
+    generateDailyTimeline(container) {
+        const today = new Date();
+        const todayTasks = this.tasks.filter(task => {
+            if (!task.dueDate) return false;
+            const taskDate = new Date(task.dueDate);
+            return taskDate.toDateString() === today.toDateString();
+        });
+        
+        container.innerHTML = `
+            <h6>Tareas para Hoy (${today.toLocaleDateString()})</h6>
+            <div class="row">
+                ${todayTasks.length === 0 ? 
+                    '<div class="col-12"><div class="alert alert-info">No hay tareas programadas para hoy</div></div>' :
+                    todayTasks.map(task => `
+                        <div class="col-md-4 mb-3">
+                            <div class="card">
+                                <div class="card-body">
+                                    <h6 class="card-title">${task.name}</h6>
+                                    <p class="card-text small">${task.description || 'Sin descripción'}</p>
+                                    <div class="progress mb-2">
+                                        <div class="progress-bar" style="width: ${task.progress}%">${task.progress}%</div>
+                                    </div>
+                                    <span class="badge bg-${task.priority === 'high' ? 'danger' : task.priority === 'medium' ? 'warning' : 'info'}">${this.getPriorityText(task.priority)}</span>
+                                </div>
+                            </div>
+                        </div>
+                    `).join('')
+                }
+            </div>
         `;
     }
 
-    cargarArchivoMarkdown(nombreArchivo) {
-        if (!nombreArchivo) return;
-
-        const archivo = this.datos.archivos_md.find(a => a.nombre === nombreArchivo);
-        const editor = document.getElementById('markdownEditor');
-        const preview = document.getElementById('markdownPreview');
-
-        if (archivo && editor) {
-            editor.value = archivo.contenido;
-            this.actualizarPreviewMarkdown();
-        }
-    }
-
-    cambiarTabMarkdown(tab) {
-        const editor = document.getElementById('markdownEditor');
-        const preview = document.getElementById('markdownPreview');
-        const editorTab = document.querySelector('[data-tab="editor"]');
-        const previewTab = document.querySelector('[data-tab="preview"]');
-
-        if (!editor || !preview) return;
-
-        // Actualizar tabs
-        document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
+    generateWeeklyTimeline(container) {
+        const today = new Date();
+        const weekStart = new Date(today);
+        weekStart.setDate(today.getDate() - today.getDay() + 1); // Lunes
         
-        if (tab === 'editor') {
-            editorTab?.classList.add('active');
-            editor.style.display = 'block';
-            preview.style.display = 'none';
-        } else {
-            previewTab?.classList.add('active');
-            editor.style.display = 'none';
-            preview.style.display = 'block';
-            this.actualizarPreviewMarkdown();
+        const weekDays = [];
+        for (let i = 0; i < 7; i++) {
+            const day = new Date(weekStart);
+            day.setDate(weekStart.getDate() + i);
+            weekDays.push(day);
         }
-    }
-
-    actualizarPreviewMarkdown() {
-        const editor = document.getElementById('markdownEditor');
-        const preview = document.getElementById('markdownPreview');
         
-        if (!editor || !preview) return;
-
-        // Conversión básica de Markdown a HTML
-        let html = editor.value
-            .replace(/^### (.*$)/gim, '<h3>$1</h3>')
-            .replace(/^## (.*$)/gim, '<h2>$1</h2>')
-            .replace(/^# (.*$)/gim, '<h1>$1</h1>')
-            .replace(/^\* (.*$)/gim, '<li>$1</li>')
-            .replace(/^\d+\. (.*$)/gim, '<li>$1</li>')
-            .replace(/\*\*(.*)\*\*/gim, '<strong>$1</strong>')
-            .replace(/\*(.*)\*/gim, '<em>$1</em>')
-            .replace(/\n/g, '<br>');
-
-        // Envolver listas
-        html = html.replace(/(<li>.*?<\/li>)/gs, '<ul>$1</ul>');
-
-        preview.innerHTML = html;
-    }
-
-    guardarMarkdown() {
-        const select = document.getElementById('mdFileSelect');
-        const editor = document.getElementById('markdownEditor');
-        
-        if (!select || !editor || !select.value) {
-            this.mostrarNotificacion('Selecciona un archivo primero', 'warning');
-            return;
-        }
-
-        const nombreArchivo = select.value;
-        const contenido = editor.value;
-
-        const archivo = this.datos.archivos_md.find(a => a.nombre === nombreArchivo);
-        if (archivo) {
-            archivo.contenido = contenido;
-            archivo.titulo = this.extraerTituloMarkdown(contenido);
-            this.guardarDatos();
-            this.mostrarNotificacion('Archivo guardado correctamente', 'success');
-            this.actualizarListaArchivosMarkdown();
-        }
-    }
-
-    autoguardarMarkdown() {
-        // Autoguardado silencioso cada 2 segundos
-        this.guardarMarkdown();
-    }
-
-    nuevoArchivoMarkdown() {
-        const nombre = prompt('Nombre del archivo (sin extensión):');
-        if (!nombre) return;
-
-        const nombreCompleto = `${nombre}.md`;
-        
-        // Verificar que no exista
-        if (this.datos.archivos_md.find(a => a.nombre === nombreCompleto)) {
-            this.mostrarNotificacion('Ya existe un archivo con ese nombre', 'error');
-            return;
-        }
-
-        const nuevoArchivo = {
-            nombre: nombreCompleto,
-            titulo: nombre.replace(/-/g, ' ').replace(/\b\w/g, l => l.toUpperCase()),
-            contenido: `# ${nombre.replace(/-/g, ' ').replace(/\b\w/g, l => l.toUpperCase())}\n\nContenido del archivo...`
-        };
-
-        this.datos.archivos_md.push(nuevoArchivo);
-        this.guardarDatos();
-        this.actualizarListaArchivosMarkdown();
-        this.mostrarNotificacion('Archivo creado correctamente', 'success');
-
-        // Seleccionar el nuevo archivo
-        const select = document.getElementById('mdFileSelect');
-        if (select) {
-            select.value = nombreCompleto;
-            this.cargarArchivoMarkdown(nombreCompleto);
-        }
-    }
-
-    abrirVisorMarkdown(nombreArchivo) {
-        const archivo = this.datos.archivos_md.find(a => a.nombre === nombreArchivo);
-        if (!archivo) {
-            this.mostrarNotificacion('Archivo no encontrado', 'error');
-            return;
-        }
-
-        // Cambiar a vista markdown y cargar archivo
-        this.cambiarVista('markdown');
-        
-        setTimeout(() => {
-            const select = document.getElementById('mdFileSelect');
-            if (select) {
-                select.value = nombreArchivo;
-                this.cargarArchivoMarkdown(nombreArchivo);
-            }
-        }, 100);
-    }
-
-    // Redes Sociales
-    renderizarCalendarioSocial() {
-        const calendar = document.getElementById('socialCalendar');
-        const suggestions = document.getElementById('contentSuggestions');
-        
-        if (!calendar || !suggestions) return;
-
-        // Generar calendario para la semana actual
-        const hoy = new Date();
-        const inicioSemana = this.getInicioSemana(hoy);
-        const diasSemana = ['Lun', 'Mar', 'Mié', 'Jue', 'Vie', 'Sáb', 'Dom'];
-        
-        // Contenido programado basado en configuración
-        const contenidoProgramado = this.generarContenidoProgramado();
-
-        calendar.innerHTML = `
-            <h3>Calendario de Contenido - Semana del ${inicioSemana.toLocaleDateString()}</h3>
-            <div class="calendar-grid">
-                ${diasSemana.map((dia, index) => {
-                    const fecha = new Date(inicioSemana);
-                    fecha.setDate(fecha.getDate() + index);
-                    const contenido = contenidoProgramado[index] || [];
+        container.innerHTML = `
+            <h6>Vista Semanal</h6>
+            <div class="row">
+                ${weekDays.map(day => {
+                    const dayTasks = this.tasks.filter(task => {
+                        if (!task.dueDate) return false;
+                        const taskDate = new Date(task.dueDate);
+                        return taskDate.toDateString() === day.toDateString();
+                    });
                     
                     return `
-                        <div class="calendar-day">
-                            <div class="calendar-day-header">${dia} ${fecha.getDate()}</div>
-                            <div class="social-posts">
-                                ${contenido.map(post => `
-                                    <div class="social-post ${post.platform}">
-                                        ${post.platform}: ${post.content}
-                                    </div>
-                                `).join('')}
+                        <div class="col-md-1.5 mb-3">
+                            <div class="card ${day.toDateString() === today.toDateString() ? 'border-primary' : ''}">
+                                <div class="card-header text-center">
+                                    <small>${day.toLocaleDateString('es', { weekday: 'short', day: 'numeric' })}</small>
+                                </div>
+                                <div class="card-body p-2">
+                                    ${dayTasks.map(task => `
+                                        <div class="small mb-1 p-1 bg-light rounded">
+                                            ${task.name}
+                                            <div class="progress" style="height: 3px;">
+                                                <div class="progress-bar" style="width: ${task.progress}%"></div>
+                                            </div>
+                                        </div>
+                                    `).join('') || '<small class="text-muted">Sin tareas</small>'}
+                                </div>
                             </div>
                         </div>
                     `;
                 }).join('')}
             </div>
         `;
-
-        this.renderizarSugerenciasContenido(suggestions);
     }
 
-    generarContenidoProgramado() {
-        const programacion = {};
+    generateMonthlyTimeline(container) {
+        const today = new Date();
+        const currentMonth = today.getMonth();
+        const currentYear = today.getFullYear();
         
-        // Basado en la configuración de redes sociales
-        Object.entries(this.datos.redes_sociales).forEach(([platform, config]) => {
-            config.horarios?.forEach(horario => {
-                const [dia, hora] = horario.split(' ');
-                const diaIndex = this.getDiaIndex(dia);
-                if (diaIndex !== -1) {
-                    if (!programacion[diaIndex]) programacion[diaIndex] = [];
-                    
-                    const contenidoSugerido = this.generarContenidoParaPlataforma(platform);
-                    programacion[diaIndex].push({
-                        platform: platform,
-                        content: contenidoSugerido,
-                        time: hora
-                    });
-                }
-            });
+        const monthlyTasks = this.tasks.filter(task => {
+            if (!task.dueDate) return false;
+            const taskDate = new Date(task.dueDate);
+            return taskDate.getMonth() === currentMonth && taskDate.getFullYear() === currentYear;
         });
-
-        return programacion;
-    }
-
-    getDiaIndex(dia) {
-        const dias = {
-            'Lunes': 0, 'Martes': 1, 'Miércoles': 2, 'Jueves': 3, 
-            'Viernes': 4, 'Sábado': 5, 'Domingo': 6
-        };
-        return dias[dia] !== undefined ? dias[dia] : -1;
-    }
-
-    generarContenidoParaPlataforma(platform) {
-        // Obtener tareas completadas recientemente para generar contenido relevante
-        const tareasRecientes = this.datos.tareas
-            .filter(t => t.progreso > 0)
-            .slice(0, 3);
-
-        const contenidoBase = {
-            instagram: [
-                `Time-lapse del ${tareasRecientes[0]?.nombre || 'patrón actual'}`,
-                'Tips de ergonomía para bordar con fibromialgia',
-                'Stories: progreso del día con estado de salud',
-                'Foto del espacio de bordado',
-                'Combinación de colores del día'
-            ],
-            youtube: [
-                `Tutorial: ${tareasRecientes[0]?.nombre || 'Técnica básica de Bargello'}`,
-                'Bordado terapéutico para condiciones crónicas',
-                'Historia del Bargello y técnicas tradicionales',
-                'Q&A: Preguntas de la comunidad'
-            ],
-            facebook: [
-                'Actualización semanal del progreso del taller',
-                'Compartir logros de la comunidad',
-                'Post educativo sobre beneficios del bordado',
-                'Reflexión sobre bordado consciente'
-            ],
-            tiktok: [
-                'Transformación antes/después en 60 segundos',
-                'Técnica rápida de corrección de errores',
-                'Bordado mientras manejo fibromialgia',
-                'Colores que mejoran el estado de ánimo'
-            ],
-            pinterest: [
-                `Infografía: ${tareasRecientes[0]?.nombre || 'Patrón completado'}`,
-                'Tablero de inspiración cromática',
-                'Guía visual de herramientas',
-                'Espacios de bordado adaptativos'
-            ]
-        };
-
-        const opciones = contenidoBase[platform] || ['Contenido personalizado'];
-        return opciones[Math.floor(Math.random() * opciones.length)];
-    }
-
-    renderizarSugerenciasContenido(container) {
-        const hoy = new Date().toISOString().split('T')[0];
-        const registroHoy = this.datos.salud.find(r => r.fecha === hoy);
-        const tareasHoy = this.datos.tareas.filter(t => 
-            t.fecha_inicio <= hoy && t.fecha_limite >= hoy && t.estado !== 'completado'
-        );
-
+        
+        // Agrupar por semanas
+        const weeks = {};
+        monthlyTasks.forEach(task => {
+            const taskDate = new Date(task.dueDate);
+            const weekNum = Math.ceil(taskDate.getDate() / 7);
+            if (!weeks[weekNum]) weeks[weekNum] = [];
+            weeks[weekNum].push(task);
+        });
+        
         container.innerHTML = `
-            <h3>Sugerencias de Contenido Personalizadas</h3>
-            <div class="social-suggestions">
-                ${Object.entries(this.datos.redes_sociales).map(([platform, config]) => `
-                    <div class="platform-suggestion">
-                        <h4>${platform.charAt(0).toUpperCase() + platform.slice(1)}</h4>
-                        <div class="connection-status ${config.connected ? 'connected' : 'disconnected'}">
-                            ${config.connected ? '✅ Conectado' : '❌ No conectado'}
-                            <button class="btn btn--sm connect-social-btn" data-platform="${platform}">
-                                ${config.connected ? 'Configurar' : 'Conectar'}
-                            </button>
-                        </div>
-                        <p><strong>Frecuencia:</strong> ${config.frecuencia}</p>
-                        <div class="content-suggestions">
-                            <h5>Sugerencias para hoy:</h5>
-                            <ul>
-                                ${this.generarSugerenciasEspecificas(platform, registroHoy, tareasHoy).map(sugerencia => 
-                                    `<li>${sugerencia}</li>`
-                                ).join('')}
-                            </ul>
+            <h6>Vista Mensual - ${today.toLocaleDateString('es', { month: 'long', year: 'numeric' })}</h6>
+            <div class="row">
+                ${Object.keys(weeks).map(week => `
+                    <div class="col-md-3 mb-3">
+                        <div class="card">
+                            <div class="card-header">
+                                <h6>Semana ${week}</h6>
+                            </div>
+                            <div class="card-body">
+                                ${weeks[week].map(task => `
+                                    <div class="mb-2">
+                                        <small><strong>${task.name}</strong></small>
+                                        <div class="progress" style="height: 5px;">
+                                            <div class="progress-bar" style="width: ${task.progress}%"></div>
+                                        </div>
+                                    </div>
+                                `).join('')}
+                            </div>
                         </div>
                     </div>
                 `).join('')}
@@ -1385,604 +1387,142 @@ class BargelloDashboard {
         `;
     }
 
-    generarSugerenciasEspecificas(platform, registroSalud, tareasHoy) {
-        const sugerencias = [];
-        
-        // Sugerencias basadas en salud
-        if (registroSalud) {
-            if (registroSalud.dolor >= 7) {
-                sugerencias.push(`Compartir técnicas de bordado para días de dolor alto`);
-            }
-            if (registroSalud.fatiga >= 7) {
-                sugerencias.push(`Mostrar adaptaciones para días de fatiga severa`);
-            }
-            if (registroSalud.dolor <= 4 && registroSalud.fatiga <= 4) {
-                sugerencias.push(`Time-lapse de progreso en día de buena energía`);
-            }
-        }
-
-        // Sugerencias basadas en tareas actuales
-        if (tareasHoy.length > 0) {
-            const tareaActual = tareasHoy[0];
-            if (platform === 'instagram') {
-                sugerencias.push(`Foto del ${tareaActual.nombre} en progreso`);
-                sugerencias.push(`Stories mostrando el proceso paso a paso`);
-            } else if (platform === 'youtube') {
-                sugerencias.push(`Tutorial detallado: ${tareaActual.nombre}`);
-            } else if (platform === 'pinterest') {
-                sugerencias.push(`Pin con el patrón de ${tareaActual.nombre}`);
-            }
-        }
-
-        // Sugerencias por defecto si no hay específicas
-        if (sugerencias.length === 0) {
-            const defaultContent = {
-                instagram: ['Foto de tu espacio de bordado', 'Tip rápido en Stories'],
-                youtube: ['Video educativo sobre Bargello', 'Respuesta a preguntas de seguidores'],
-                facebook: ['Reflexión sobre bordado terapéutico', 'Compartir progreso semanal'],
-                tiktok: ['Video corto de técnica', 'Antes y después de proyecto'],
-                pinterest: ['Infografía de colores', 'Tablero de inspiración']
-            };
-            sugerencias.push(...(defaultContent[platform] || ['Contenido personalizado']));
-        }
-
-        return sugerencias.slice(0, 3);
-    }
-
-    conectarRedSocial(platform) {
-        // Simulación de conexión a red social
-        const apiKey = prompt(`Ingresa tu API key para ${platform}:`);
-        if (apiKey) {
-            this.datos.redes_sociales[platform].apiKey = apiKey;
-            this.datos.redes_sociales[platform].connected = true;
-            this.guardarDatos();
-            this.mostrarNotificacion(`${platform} conectado correctamente`, 'success');
-            this.renderizarCalendarioSocial();
-        }
-    }
-
-    getInicioSemana(fecha) {
-        const dia = fecha.getDay();
-        const diff = fecha.getDate() - dia + (dia === 0 ? -6 : 1); // Lunes como primer día
-        return new Date(fecha.setDate(diff));
-    }
-
-    // Timeline y Cronograma
-    renderizarTimeline() {
-        const container = document.getElementById('timelineContainer');
-        if (!container) return;
-
-        const currentWeekEl = document.getElementById('currentWeek');
-        if (currentWeekEl) {
-            currentWeekEl.textContent = `Semana del ${this.currentWeek.toLocaleDateString()}`;
-        }
-
-        const inicioSemana = this.getInicioSemana(new Date(this.currentWeek));
-        const diasSemana = ['Lun', 'Mar', 'Mié', 'Jue', 'Vie', 'Sáb', 'Dom'];
-
-        const tareasSemanales = this.obtenerTareasSemanales(inicioSemana);
-
-        const timelineGrid = document.getElementById('timelineGrid');
-        if (timelineGrid) {
-            timelineGrid.innerHTML = diasSemana.map((dia, index) => {
-                const fecha = new Date(inicioSemana);
-                fecha.setDate(fecha.getDate() + index);
-                const tareasDia = tareasSemanales[index] || [];
-                
-                return `
-                    <div class="timeline-day">
-                        <h4>${dia} ${fecha.getDate()}</h4>
-                        <div class="day-tasks">
-                            ${tareasDia.map(tarea => `
-                                <div class="timeline-task" data-task-id="${tarea.id}" 
-                                     style="background-color: ${this.getColorByModule(tarea.modulo)}">
-                                    <div class="task-title">${tarea.nombre}</div>
-                                    <div class="task-duration">${tarea.duracion_estimada}h</div>
-                                    <div class="task-progress-mini">${tarea.progreso}%</div>
-                                </div>
-                            `).join('')}
-                        </div>
+    // Utilidades
+    showQuickHealthDialog() {
+        // Crear modal rápido para registro de salud
+        const modal = document.createElement('div');
+        modal.className = 'modal fade';
+        modal.innerHTML = `
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title">Registro Rápido de Salud</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
                     </div>
-                `;
-            }).join('');
-        }
-    }
-
-    obtenerTareasSemanales(inicioSemana) {
-        const tareasSemanales = {};
+                    <div class="modal-body">
+                        <div class="mb-3">
+                            <label>¿Cómo te sientes hoy? (1-10)</label>
+                            <input type="range" class="form-range" min="1" max="10" id="quickPain" value="5">
+                            <div class="text-center"><span id="quickPainValue">5</span></div>
+                        </div>
+                        <button class="btn btn-primary w-100" id="saveQuickHealth">Guardar</button>
+                    </div>
+                </div>
+            </div>
+        `;
         
-        for (let i = 0; i < 7; i++) {
-            const fecha = new Date(inicioSemana);
-            fecha.setDate(fecha.getDate() + i);
-            const fechaStr = fecha.toISOString().split('T')[0];
+        document.body.appendChild(modal);
+        const bsModal = new bootstrap.Modal(modal);
+        bsModal.show();
+        
+        // Event listeners para el modal rápido
+        modal.querySelector('#quickPain').addEventListener('input', (e) => {
+            modal.querySelector('#quickPainValue').textContent = e.target.value;
+        });
+        
+        modal.querySelector('#saveQuickHealth').addEventListener('click', () => {
+            const level = parseInt(modal.querySelector('#quickPain').value);
             
-            tareasSemanales[i] = this.datos.tareas.filter(tarea => {
-                return (tarea.fecha_inicio <= fechaStr && tarea.fecha_limite >= fechaStr) &&
-                       tarea.estado !== 'completado';
-            });
-        }
-
-        return tareasSemanales;
-    }
-
-    getColorByModule(modulo) {
-        const colors = {
-            '0': '#FF6B6B', '1': '#4ECDC4', '2': '#45B7D1', '3': '#96CEB4',
-            '4': '#FFEAA7', '5': '#DDA0DD', '6': '#98D8C8', '7': '#F7DC6F',
-            '8': '#BB8FCE', '9': '#85C1E9', '10': '#F8C471', '11': '#82E0AA',
-            '12': '#F1948A', '13': '#AED6F1'
-        };
-        return colors[modulo] || '#BDC3C7';
-    }
-
-    cambiarSemana(direccion) {
-        const nuevaFecha = new Date(this.currentWeek);
-        nuevaFecha.setDate(nuevaFecha.getDate() + (direccion * 7));
-        this.currentWeek = nuevaFecha;
-        this.renderizarTimeline();
-    }
-
-    // Dashboard principal
-    actualizarDashboard() {
-        this.actualizarEstadisticasDashboard();
-        this.renderizarGraficos();
-        this.actualizarEstadoSalud();
-    }
-
-    actualizarEstadisticasDashboard() {
-        const totalTareas = this.datos.tareas.length;
-        const completadas = this.datos.tareas.filter(t => t.estado === 'completado').length;
-        const enProgreso = this.datos.tareas.filter(t => t.estado === 'en progreso').length;
-        const pendientes = this.datos.tareas.filter(t => t.estado === 'pendiente').length;
-
-        // Actualizar estadísticas si existen elementos
-        const elements = {
-            'totalTasks': totalTareas,
-            'completedTasks': completadas,
-            'inProgressTasks': enProgreso,
-            'pendingTasks': pendientes
-        };
-
-        Object.entries(elements).forEach(([id, value]) => {
-            const el = document.getElementById(id);
-            if (el) el.textContent = value;
-        });
-
-        // Actualizar progreso general
-        const progressGeneral = totalTareas > 0 ? (completadas / totalTareas) * 100 : 0;
-        const progressBar = document.getElementById('generalProgress');
-        if (progressBar) {
-            progressBar.style.width = `${progressGeneral}%`;
-        }
-    }
-
-    // Gráficos
-    renderizarGraficos() {
-        this.renderizarGraficoSalud();
-        this.renderizarGraficoProgreso();
-    }
-
-    renderizarGraficoSalud() {
-        const canvas = document.getElementById('healthChart');
-        if (!canvas) return;
-
-        const ctx = canvas.getContext('2d');
-        
-        // Destruir gráfico anterior si existe
-        if (this.healthChart) {
-            this.healthChart.destroy();
-        }
-
-        const ultimos7Dias = this.datos.salud.slice(-7);
-        
-        this.healthChart = new Chart(ctx, {
-            type: 'line',
-            data: {
-                labels: ultimos7Dias.map(d => new Date(d.fecha).toLocaleDateString()),
-                datasets: [
-                    {
-                        label: 'Dolor',
-                        data: ultimos7Dias.map(d => d.dolor),
-                        borderColor: '#FF6B6B',
-                        backgroundColor: 'rgba(255, 107, 107, 0.1)',
-                        tension: 0.1
-                    },
-                    {
-                        label: 'Fatiga',
-                        data: ultimos7Dias.map(d => d.fatiga),
-                        borderColor: '#4ECDC4',
-                        backgroundColor: 'rgba(78, 205, 196, 0.1)',
-                        tension: 0.1
-                    },
-                    {
-                        label: 'Sueño',
-                        data: ultimos7Dias.map(d => d.sueño),
-                        borderColor: '#45B7D1',
-                        backgroundColor: 'rgba(69, 183, 209, 0.1)',
-                        tension: 0.1
-                    }
-                ]
-            },
-            options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                scales: {
-                    y: {
-                        beginAtZero: true,
-                        max: 10
-                    }
-                },
-                plugins: {
-                    legend: {
-                        display: true,
-                        position: 'top'
-                    }
-                }
-            }
-        });
-    }
-
-    renderizarGraficoProgreso() {
-        const canvas = document.getElementById('progressChart');
-        if (!canvas) return;
-
-        const ctx = canvas.getContext('2d');
-        
-        // Destruir gráfico anterior si existe
-        if (this.progressChart) {
-            this.progressChart.destroy();
-        }
-
-        // Agrupar tareas por módulo
-        const tareasPorModulo = {};
-        this.datos.tareas.forEach(tarea => {
-            if (!tareasPorModulo[tarea.modulo]) {
-                tareasPorModulo[tarea.modulo] = [];
-            }
-            tareasPorModulo[tarea.modulo].push(tarea);
-        });
-
-        const labels = Object.keys(tareasPorModulo).sort().map(m => `Módulo ${m}`);
-        const data = Object.keys(tareasPorModulo).sort().map(modulo => {
-            const tareas = tareasPorModulo[modulo];
-            const promedioProgreso = tareas.reduce((sum, t) => sum + t.progreso, 0) / tareas.length;
-            return promedioProgreso;
-        });
-
-        this.progressChart = new Chart(ctx, {
-            type: 'bar',
-            data: {
-                labels: labels,
-                datasets: [{
-                    label: 'Progreso (%)',
-                    data: data,
-                    backgroundColor: labels.map((_, index) => this.getColorByModule(index.toString())),
-                    borderWidth: 1
-                }]
-            },
-            options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                scales: {
-                    y: {
-                        beginAtZero: true,
-                        max: 100
-                    }
-                },
-                plugins: {
-                    legend: {
-                        display: false
-                    }
-                }
-            }
-        });
-    }
-
-    // Gestión de datos
-    guardarDatos() {
-        try {
-            localStorage.setItem('bargelloDashboard', JSON.stringify(this.datos));
-            localStorage.setItem('lastSave', new Date().toISOString());
-        } catch (e) {
-            console.error('Error guardando datos:', e);
-            this.mostrarNotificacion('Error al guardar datos', 'error');
-        }
-    }
-
-    abrirCargadorCSV() {
-        const input = document.createElement('input');
-        input.type = 'file';
-        input.accept = '.csv';
-        
-        input.onchange = (e) => {
-            const file = e.target.files[0];
-            if (file) {
-                this.cargarCSV(file);
-            }
-        };
-        
-        input.click();
-    }
-
-    cargarCSV(file) {
-        const reader = new FileReader();
-        
-        reader.onload = (e) => {
-            try {
-                const csv = e.target.result;
-                const lines = csv.split('\n');
-                const headers = lines[0].split(',').map(h => h.trim().replace(/"/g, ''));
-                
-                const nuevasTareas = [];
-                
-                for (let i = 1; i < lines.length; i++) {
-                    const line = lines[i].trim();
-                    if (!line) continue;
-                    
-                    const values = this.parseCSVLine(line);
-                    if (values.length !== headers.length) continue;
-                    
-                    const tarea = {};
-                    headers.forEach((header, index) => {
-                        tarea[header] = values[index];
-                    });
-                    
-                    // Convertir tipos apropiados
-                    if (tarea.id) tarea.id = parseInt(tarea.id) || Date.now() + i;
-                    if (tarea.duracion_estimada) tarea.duracion_estimada = parseInt(tarea.duracion_estimada) || 1;
-                    if (tarea.progreso) tarea.progreso = parseInt(tarea.progreso) || 0;
-                    
-                    nuevasTareas.push(tarea);
-                }
-                
-                if (nuevasTareas.length > 0) {
-                    this.datos.tareas = nuevasTareas;
-                    this.guardarDatos();
-                    this.renderizarTareas();
-                    this.poblarFiltroModulos();
-                    this.actualizarDashboard();
-                    this.mostrarNotificacion(`${nuevasTareas.length} tareas cargadas desde CSV`, 'success');
-                } else {
-                    this.mostrarNotificacion('No se encontraron tareas válidas en el CSV', 'warning');
-                }
-                
-            } catch (error) {
-                console.error('Error procesando CSV:', error);
-                this.mostrarNotificacion('Error al procesar el archivo CSV', 'error');
-            }
-        };
-        
-        reader.readAsText(file);
-    }
-
-    parseCSVLine(line) {
-        const values = [];
-        let current = '';
-        let inQuotes = false;
-        
-        for (let i = 0; i < line.length; i++) {
-            const char = line[i];
-            
-            if (char === '"') {
-                inQuotes = !inQuotes;
-            } else if (char === ',' && !inQuotes) {
-                values.push(current.trim());
-                current = '';
-            } else {
-                current += char;
-            }
-        }
-        
-        values.push(current.trim());
-        return values.map(v => v.replace(/^"|"$/g, ''));
-    }
-
-    abrirCargadorMD() {
-        const input = document.createElement('input');
-        input.type = 'file';
-        input.accept = '.md';
-        input.multiple = true;
-        
-        input.onchange = (e) => {
-            const files = Array.from(e.target.files);
-            this.cargarArchivosMarkdownSubidos(files);
-        };
-        
-        input.click();
-    }
-
-    cargarArchivosMarkdownSubidos(files) {
-        let archivoscargados = 0;
-        
-        files.forEach(file => {
-            const reader = new FileReader();
-            
-            reader.onload = (e) => {
-                const contenido = e.target.result;
-                const nombre = file.name;
-                
-                // Verificar si ya existe
-                const existingIndex = this.datos.archivos_md.findIndex(a => a.nombre === nombre);
-                
-                const archivo = {
-                    nombre: nombre,
-                    titulo: this.extraerTituloMarkdown(contenido),
-                    contenido: contenido
-                };
-                
-                if (existingIndex !== -1) {
-                    this.datos.archivos_md[existingIndex] = archivo;
-                } else {
-                    this.datos.archivos_md.push(archivo);
-                }
-                
-                archivoscargados++;
-                
-                if (archivoscargados === files.length) {
-                    this.guardarDatos();
-                    this.actualizarListaArchivosMarkdown();
-                    this.mostrarNotificacion(`${archivoscargados} archivos MD cargados`, 'success');
-                }
+            const healthRecord = {
+                id: Date.now().toString(),
+                date: new Date().toISOString().split('T')[0],
+                timestamp: new Date().toISOString(),
+                pain: level,
+                fatigue: level, // Usar mismo valor para registro rápido
+                sleep: 7, // Valor por defecto
+                notes: 'Registro rápido',
+                recommendedHours: this.calculateWorkCapacity(level, level, 7)
             };
             
-            reader.readAsText(file);
+            this.healthRecords = this.healthRecords.filter(record => record.date !== healthRecord.date);
+            this.healthRecords.push(healthRecord);
+            this.healthRecords = this.healthRecords.slice(-30);
+            
+            this.saveData();
+            this.updateHealthRecommendations(healthRecord);
+            this.updateDashboard();
+            
+            bsModal.hide();
+            document.body.removeChild(modal);
+            this.showAlert('Estado de salud registrado', 'success');
+        });
+        
+        // Limpiar modal al cerrar
+        modal.addEventListener('hidden.bs.modal', () => {
+            document.body.removeChild(modal);
         });
     }
 
-    exportarCSV() {
-        const headers = [
-            'id', 'nombre', 'descripcion', 'modulo', 'seccion', 
-            'fecha_inicio', 'fecha_limite', 'duracion_estimada', 
-            'dependencias', 'prioridad', 'progreso', 'estado', 
-            'responsable', 'notas', 'archivo_md'
-        ];
+    showAlert(message, type = 'info') {
+        // Crear alert temporal
+        const alertDiv = document.createElement('div');
+        alertDiv.className = `alert alert-${type} alert-dismissible fade show position-fixed`;
+        alertDiv.style.cssText = 'top: 20px; right: 20px; z-index: 9999; min-width: 300px;';
+        alertDiv.innerHTML = `
+            ${message}
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        `;
         
-        let csv = headers.join(',') + '\n';
+        document.body.appendChild(alertDiv);
         
-        this.datos.tareas.forEach(tarea => {
-            const row = headers.map(header => {
-                let value = tarea[header] || '';
-                // Escapar comillas y envolver en comillas si contiene comas
-                if (typeof value === 'string' && (value.includes(',') || value.includes('"'))) {
-                    value = '"' + value.replace(/"/g, '""') + '"';
-                }
-                return value;
-            });
-            csv += row.join(',') + '\n';
-        });
-        
-        // Crear y descargar archivo
-        const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
-        const link = document.createElement('a');
-        const url = URL.createObjectURL(blob);
-        link.setAttribute('href', url);
-        link.setAttribute('download', `bargello_tareas_${new Date().toISOString().split('T')[0]}.csv`);
-        link.style.visibility = 'hidden';
-        document.body.appendChild(link);
-        link.click();
-        document.body.removeChild(link);
-        
-        this.mostrarNotificacion('CSV exportado correctamente', 'success');
+        // Auto-remover después de 5 segundos
+        setTimeout(() => {
+            if (alertDiv.parentNode) {
+                alertDiv.remove();
+            }
+        }, 5000);
     }
 
-    sincronizarDatos() {
-        // Simulación de sincronización
-        this.guardarDatos();
-        
-        // Actualizar timestamp de sincronización
-        localStorage.setItem('lastSync', new Date().toISOString());
-        
-        this.mostrarNotificacion('Datos sincronizados correctamente', 'success');
-        
-        // Actualizar UI de última sincronización
-        const lastSyncEl = document.getElementById('lastSync');
-        if (lastSyncEl) {
-            lastSyncEl.textContent = new Date().toLocaleString();
-        }
-    }
-
-    configurarSincronizacionAutomatica() {
-        if (this.datos.configuracion.sincronizacion_automatica) {
-            // Guardar datos cada 5 minutos
-            setInterval(() => {
-                this.guardarDatos();
-            }, 5 * 60 * 1000);
-        }
-    }
-
-    configurarNotificaciones() {
-        // Solicitar permiso para notificaciones
+    // Monitoreo de salud y notificaciones
+    startHealthMonitoring() {
+        // Solicitar permisos de notificación
         if ('Notification' in window && Notification.permission === 'default') {
             Notification.requestPermission();
         }
+        
+        // Recordatorio diario de registro de salud
+        const now = new Date();
+        const tomorrow = new Date(now);
+        tomorrow.setDate(tomorrow.getDate() + 1);
+        tomorrow.setHours(9, 0, 0, 0); // 9 AM
+        
+        const timeUntilReminder = tomorrow.getTime() - now.getTime();
+        
+        setTimeout(() => {
+            this.showHealthReminder();
+            // Configurar recordatorio diario
+            setInterval(() => this.showHealthReminder(), 24 * 60 * 60 * 1000);
+        }, timeUntilReminder);
     }
 
-    mostrarNotificacion(mensaje, tipo = 'info') {
-        // Crear contenedor de notificaciones si no existe
-        let container = document.getElementById('notifications');
-        if (!container) {
-            container = document.createElement('div');
-            container.id = 'notifications';
-            container.className = 'notifications';
-            document.body.appendChild(container);
-        }
-
-        // Crear notificación
-        const notification = document.createElement('div');
-        notification.className = `notification ${tipo}`;
-        notification.textContent = mensaje;
-
-        container.appendChild(notification);
-
-        // Mostrar con animación
-        setTimeout(() => {
-            notification.classList.add('show');
-        }, 10);
-
-        // Auto-ocultar después de 5 segundos
-        setTimeout(() => {
-            notification.classList.remove('show');
-            setTimeout(() => {
-                if (notification.parentNode) {
-                    notification.parentNode.removeChild(notification);
-                }
-            }, 300);
-        }, 5000);
-
-        // Notificación del navegador si está permitida
-        if ('Notification' in window && Notification.permission === 'granted') {
-            new Notification('Bargello Dashboard', {
-                body: mensaje,
-                icon: 'data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><text y=".9em" font-size="90">🧵</text></svg>'
-            });
+    showHealthReminder() {
+        const today = new Date().toISOString().split('T')[0];
+        const todayRecord = this.healthRecords.find(record => record.date === today);
+        
+        if (!todayRecord) {
+            if (Notification.permission === 'granted') {
+                new Notification('Registro de Salud', {
+                    body: '¡No olvides registrar cómo te sientes hoy!',
+                    icon: '/favicon.ico'
+                });
+            }
+            
+            // También mostrar alerta en la interfaz
+            this.showAlert('¡No olvides registrar tu estado de salud de hoy!', 'warning');
         }
     }
 }
 
-// Inicializar cuando el DOM esté listo
+// Inicializar la aplicación cuando el DOM esté listo
 document.addEventListener('DOMContentLoaded', () => {
-    // Verificar si Chart.js está disponible
-    if (typeof Chart === 'undefined') {
-        console.warn('Chart.js no está disponible. Los gráficos no se mostrarán.');
-        // Crear Chart mock para evitar errores
-        window.Chart = class {
-            constructor() {}
-            destroy() {}
-        };
-    }
-
-    // Inicializar dashboard
     window.bargelloDashboard = new BargelloDashboard();
 });
 
-// Funciones globales para compatibilidad
-window.loadCSVFile = function() {
-    if (window.bargelloDashboard) {
-        window.bargelloDashboard.abrirCargadorCSV();
-    }
-};
-
-window.exportTasks = function() {
-    if (window.bargelloDashboard) {
-        window.bargelloDashboard.exportarCSV();
-    }
-};
-
-window.loadMDFiles = function() {
-    if (window.bargelloDashboard) {
-        window.bargelloDashboard.abrirCargadorMD();
-    }
-};
-
-// Service Worker para funcionalidad offline (opcional)
+// Registro del Service Worker para funcionalidad offline
 if ('serviceWorker' in navigator) {
     window.addEventListener('load', () => {
         navigator.serviceWorker.register('/sw.js')
-            .then(registration => {
-                console.log('SW registrado: ', registration);
-            })
-            .catch(registrationError => {
-                console.log('SW registro fallido: ', registrationError);
-            });
+            .then(registration => console.log('SW registered'))
+            .catch(error => console.log('SW registration failed'));
     });
 }
