@@ -36,10 +36,8 @@
   --color-info-rgb: 98, 108, 113;
 
   /* Typography */
-  --font-family-base: "FKGroteskNeue", "Geist", "Inter", -apple-system,
-    BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-  --font-family-mono: "Berkeley Mono", ui-monospace, SFMono-Regular, Menlo,
-    Monaco, Consolas, monospace;
+  --font-family-base: "FKGroteskNeue", "Geist", "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  --font-family-mono: "Berkeley Mono", ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
   --font-size-xs: 11px;
   --font-size-sm: 12px;
   --font-size-base: 14px;
@@ -81,12 +79,9 @@
   /* Shadows */
   --shadow-xs: 0 1px 2px rgba(0, 0, 0, 0.02);
   --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.04), 0 1px 2px rgba(0, 0, 0, 0.02);
-  --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.04),
-    0 2px 4px -1px rgba(0, 0, 0, 0.02);
-  --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.04),
-    0 4px 6px -2px rgba(0, 0, 0, 0.02);
-  --shadow-inset-sm: inset 0 1px 0 rgba(255, 255, 255, 0.15),
-    inset 0 -1px 0 rgba(0, 0, 0, 0.03);
+  --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.04), 0 2px 4px -1px rgba(0, 0, 0, 0.02);
+  --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.04), 0 4px 6px -2px rgba(0, 0, 0, 0.02);
+  --shadow-inset-sm: inset 0 1px 0 rgba(255, 255, 255, 0.15), inset 0 -1px 0 rgba(0, 0, 0, 0.03);
 
   /* Animation */
   --duration-fast: 150ms;
@@ -122,21 +117,10 @@
     --color-btn-primary-text: rgba(19, 52, 59, 1);
     --color-card-border: rgba(119, 124, 124, 0.2);
     --color-card-border-inner: rgba(119, 124, 124, 0.15);
-    --shadow-inset-sm: inset 0 1px 0 rgba(255, 255, 255, 0.1),
-      inset 0 -1px 0 rgba(0, 0, 0, 0.15);
+    --shadow-inset-sm: inset 0 1px 0 rgba(255, 255, 255, 0.1), inset 0 -1px 0 rgba(0, 0, 0, 0.15);
     --button-border-secondary: rgba(119, 124, 124, 0.2);
     --color-border-secondary: rgba(119, 124, 124, 0.2);
     --color-select-caret: rgba(245, 245, 245, 0.8);
-
-    /* Common style patterns - updated for dark mode */
-    --focus-ring: 0 0 0 3px var(--color-focus-ring);
-    --focus-outline: 2px solid var(--color-primary);
-    --status-bg-opacity: 0.15;
-    --status-border-opacity: 0.25;
-    --select-caret-light: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%23134252' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
-    --select-caret-dark: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%23f5f5f5' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
-
-    /* RGB versions for dark mode */
     --color-success-rgb: 50, 184, 198;
     --color-error-rgb: 255, 84, 89;
     --color-warning-rgb: 230, 129, 97;
@@ -165,20 +149,9 @@
   --color-btn-primary-text: rgba(19, 52, 59, 1);
   --color-card-border: rgba(119, 124, 124, 0.15);
   --color-card-border-inner: rgba(119, 124, 124, 0.15);
-  --shadow-inset-sm: inset 0 1px 0 rgba(255, 255, 255, 0.1),
-    inset 0 -1px 0 rgba(0, 0, 0, 0.15);
+  --shadow-inset-sm: inset 0 1px 0 rgba(255, 255, 255, 0.1), inset 0 -1px 0 rgba(0, 0, 0, 0.15);
   --color-border-secondary: rgba(119, 124, 124, 0.2);
   --color-select-caret: rgba(245, 245, 245, 0.8);
-
-  /* Common style patterns - updated for dark mode */
-  --focus-ring: 0 0 0 3px var(--color-focus-ring);
-  --focus-outline: 2px solid var(--color-primary);
-  --status-bg-opacity: 0.15;
-  --status-border-opacity: 0.25;
-  --select-caret-light: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%23134252' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
-  --select-caret-dark: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%23f5f5f5' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
-
-  /* RGB versions for dark mode */
   --color-success-rgb: 50, 184, 198;
   --color-error-rgb: 255, 84, 89;
   --color-warning-rgb: 230, 129, 97;
@@ -205,8 +178,6 @@
   --color-warning: rgba(168, 75, 47, 1);
   --color-info: rgba(98, 108, 113, 1);
   --color-focus-ring: rgba(33, 128, 141, 0.4);
-
-  /* RGB versions for light mode */
   --color-success-rgb: 33, 128, 141;
   --color-error-rgb: 192, 21, 47;
   --color-warning-rgb: 168, 75, 47;
@@ -236,12 +207,7 @@ body {
 }
 
 /* Typography */
-h1,
-h2,
-h3,
-h4,
-h5,
-h6 {
+h1, h2, h3, h4, h5, h6 {
   margin: 0;
   font-weight: var(--font-weight-semibold);
   line-height: var(--line-height-tight);
@@ -249,29 +215,12 @@ h6 {
   letter-spacing: var(--letter-spacing-tight);
 }
 
-h1 {
-  font-size: var(--font-size-4xl);
-}
-
-h2 {
-  font-size: var(--font-size-3xl);
-}
-
-h3 {
-  font-size: var(--font-size-2xl);
-}
-
-h4 {
-  font-size: var(--font-size-xl);
-}
-
-h5 {
-  font-size: var(--font-size-lg);
-}
-
-h6 {
-  font-size: var(--font-size-md);
-}
+h1 { font-size: var(--font-size-4xl); }
+h2 { font-size: var(--font-size-3xl); }
+h3 { font-size: var(--font-size-2xl); }
+h4 { font-size: var(--font-size-xl); }
+h5 { font-size: var(--font-size-lg); }
+h6 { font-size: var(--font-size-md); }
 
 p {
   margin: 0 0 var(--space-16) 0;
@@ -287,8 +236,7 @@ a:hover {
   color: var(--color-primary-hover);
 }
 
-code,
-pre {
+code, pre {
   font-family: var(--font-family-mono);
   font-size: calc(var(--font-size-base) * 0.95);
   background-color: var(--color-secondary);
@@ -402,7 +350,7 @@ pre code {
   border: 1px solid var(--color-border);
   border-radius: var(--radius-base);
   transition: border-color var(--duration-fast) var(--ease-standard),
-    box-shadow var(--duration-fast) var(--ease-standard);
+              box-shadow var(--duration-fast) var(--ease-standard);
 }
 
 textarea.form-control {
@@ -422,14 +370,12 @@ select.form-control {
   padding-right: var(--space-32);
 }
 
-/* Add a dark mode specific caret */
 @media (prefers-color-scheme: dark) {
   select.form-control {
     background-image: var(--select-caret-dark);
   }
 }
 
-/* Also handle data-color-scheme */
 [data-color-scheme="dark"] select.form-control {
   background-image: var(--select-caret-dark);
 }
@@ -478,7 +424,7 @@ select.form-control {
   border-bottom: 1px solid var(--color-card-border-inner);
 }
 
-/* Status indicators - simplified with CSS variables */
+/* Status indicators */
 .status {
   display: inline-flex;
   align-items: center;
@@ -489,43 +435,27 @@ select.form-control {
 }
 
 .status--success {
-  background-color: rgba(
-    var(--color-success-rgb, 33, 128, 141),
-    var(--status-bg-opacity)
-  );
+  background-color: rgba(var(--color-success-rgb, 33, 128, 141), var(--status-bg-opacity));
   color: var(--color-success);
-  border: 1px solid
-    rgba(var(--color-success-rgb, 33, 128, 141), var(--status-border-opacity));
+  border: 1px solid rgba(var(--color-success-rgb, 33, 128, 141), var(--status-border-opacity));
 }
 
 .status--error {
-  background-color: rgba(
-    var(--color-error-rgb, 192, 21, 47),
-    var(--status-bg-opacity)
-  );
+  background-color: rgba(var(--color-error-rgb, 192, 21, 47), var(--status-bg-opacity));
   color: var(--color-error);
-  border: 1px solid
-    rgba(var(--color-error-rgb, 192, 21, 47), var(--status-border-opacity));
+  border: 1px solid rgba(var(--color-error-rgb, 192, 21, 47), var(--status-border-opacity));
 }
 
 .status--warning {
-  background-color: rgba(
-    var(--color-warning-rgb, 168, 75, 47),
-    var(--status-bg-opacity)
-  );
+  background-color: rgba(var(--color-warning-rgb, 168, 75, 47), var(--status-bg-opacity));
   color: var(--color-warning);
-  border: 1px solid
-    rgba(var(--color-warning-rgb, 168, 75, 47), var(--status-border-opacity));
+  border: 1px solid rgba(var(--color-warning-rgb, 168, 75, 47), var(--status-border-opacity));
 }
 
 .status--info {
-  background-color: rgba(
-    var(--color-info-rgb, 98, 108, 113),
-    var(--status-bg-opacity)
-  );
+  background-color: rgba(var(--color-info-rgb, 98, 108, 113), var(--status-bg-opacity));
   color: var(--color-info);
-  border: 1px solid
-    rgba(var(--color-info-rgb, 98, 108, 113), var(--status-border-opacity));
+  border: 1px solid rgba(var(--color-info-rgb, 98, 108, 113), var(--status-border-opacity));
 }
 
 /* Container layout */
@@ -562,91 +492,26 @@ select.form-control {
 }
 
 /* Utility classes */
-.flex {
-  display: flex;
-}
-
-.flex-col {
-  flex-direction: column;
-}
-
-.items-center {
-  align-items: center;
-}
-
-.justify-center {
-  justify-content: center;
-}
-
-.justify-between {
-  justify-content: space-between;
-}
-
-.gap-4 {
-  gap: var(--space-4);
-}
-
-.gap-8 {
-  gap: var(--space-8);
-}
-
-.gap-16 {
-  gap: var(--space-16);
-}
-
-.m-0 {
-  margin: 0;
-}
-
-.mt-8 {
-  margin-top: var(--space-8);
-}
-
-.mb-8 {
-  margin-bottom: var(--space-8);
-}
-
-.mx-8 {
-  margin-left: var(--space-8);
-  margin-right: var(--space-8);
-}
-
-.my-8 {
-  margin-top: var(--space-8);
-  margin-bottom: var(--space-8);
-}
-
-.p-0 {
-  padding: 0;
-}
-
-.py-8 {
-  padding-top: var(--space-8);
-  padding-bottom: var(--space-8);
-}
-
-.px-8 {
-  padding-left: var(--space-8);
-  padding-right: var(--space-8);
-}
-
-.py-16 {
-  padding-top: var(--space-16);
-  padding-bottom: var(--space-16);
-}
-
-.px-16 {
-  padding-left: var(--space-16);
-  padding-right: var(--space-16);
-}
-
-.block {
-  display: block;
-}
-
-.hidden {
-  display: none;
-}
+.flex { display: flex; }
+.flex-col { flex-direction: column; }
+.items-center { align-items: center; }
+.justify-center { justify-content: center; }
+.justify-between { justify-content: space-between; }
+.gap-4 { gap: var(--space-4); }
+.gap-8 { gap: var(--space-8); }
+.gap-16 { gap: var(--space-16); }
+.m-0 { margin: 0; }
+.mt-8 { margin-top: var(--space-8); }
+.mb-8 { margin-bottom: var(--space-8); }
+.mx-8 { margin-left: var(--space-8); margin-right: var(--space-8); }
+.my-8 { margin-top: var(--space-8); margin-bottom: var(--space-8); }
+.p-0 { padding: 0; }
+.py-8 { padding-top: var(--space-8); padding-bottom: var(--space-8); }
+.px-8 { padding-left: var(--space-8); padding-right: var(--space-8); }
+.py-16 { padding-top: var(--space-16); padding-bottom: var(--space-16); }
+.px-16 { padding-left: var(--space-16); padding-right: var(--space-16); }
+.block { display: block; }
+.hidden { display: none; }
 
 /* Accessibility */
 .sr-only {
@@ -673,8 +538,7 @@ select.form-control {
 
 @font-face {
   font-family: 'FKGroteskNeue';
-  src: url('https://r2cdn.perplexity.ai/fonts/FKGroteskNeue.woff2')
-    format('woff2');
+  src: url('https://r2cdn.perplexity.ai/fonts/FKGroteskNeue.woff2') format('woff2');
 }
 
 /* Application-specific styles */
@@ -828,7 +692,6 @@ select.form-control {
   gap: var(--space-8);
 }
 
-/* Improved range sliders for health tracking */
 .health-form input[type="range"] {
   -webkit-appearance: none;
   appearance: none;
@@ -836,47 +699,25 @@ select.form-control {
   background: var(--color-secondary);
   border-radius: var(--radius-full);
   outline: none;
-  width: 100%;
-  margin: var(--space-8) 0;
 }
 
 .health-form input[type="range"]::-webkit-slider-thumb {
   -webkit-appearance: none;
   appearance: none;
-  width: 24px;
-  height: 24px;
+  width: 20px;
+  height: 20px;
   background: var(--color-primary);
   border-radius: 50%;
   cursor: pointer;
-  box-shadow: 0 0 0 4px rgba(var(--color-primary-rgb), 0.1);
-  transition: all var(--duration-fast) var(--ease-standard);
 }
 
 .health-form input[type="range"]::-moz-range-thumb {
-  width: 24px;
-  height: 24px;
+  width: 20px;
+  height: 20px;
   background: var(--color-primary);
   border-radius: 50%;
   cursor: pointer;
   border: none;
-  box-shadow: 0 0 0 4px rgba(var(--color-primary-rgb), 0.1);
-  transition: all var(--duration-fast) var(--ease-standard);
-}
-
-.health-form input[type="range"]::-webkit-slider-thumb:hover {
-  box-shadow: 0 0 0 8px rgba(var(--color-primary-rgb), 0.2);
-}
-
-.health-form input[type="range"]::-moz-range-thumb:hover {
-  box-shadow: 0 0 0 8px rgba(var(--color-primary-rgb), 0.2);
-}
-
-.health-form input[type="range"]::-webkit-slider-thumb:active {
-  box-shadow: 0 0 0 12px rgba(var(--color-primary-rgb), 0.3);
-}
-
-.health-form input[type="range"]::-moz-range-thumb:active {
-  box-shadow: 0 0 0 12px rgba(var(--color-primary-rgb), 0.3);
 }
 
 /* Tasks Filters */
@@ -1138,7 +979,7 @@ select.form-control {
   gap: var(--space-24);
 }
 
-/* Modal - Fixed to properly close */
+/* Modal - CORREGIDO */
 .modal {
   display: none;
   position: fixed;
@@ -1148,13 +989,26 @@ select.form-control {
   width: 100%;
   height: 100%;
   background-color: rgba(0, 0, 0, 0.5);
-  overflow: auto;
+  opacity: 0;
+  visibility: hidden;
+  transition: all var(--duration-normal) var(--ease-standard);
 }
 
 .modal.show {
   display: flex;
   align-items: center;
   justify-content: center;
+  opacity: 1;
+  visibility: visible;
+}
+
+.modal-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.5);
 }
 
 .modal-content {
@@ -1166,7 +1020,13 @@ select.form-control {
   max-height: 90vh;
   overflow-y: auto;
   position: relative;
-  transform: none !important; /* Fix for modal close button issue */
+  z-index: 1001;
+  transform: scale(0.95);
+  transition: transform var(--duration-normal) var(--ease-standard);
+}
+
+.modal.show .modal-content {
+  transform: scale(1);
 }
 
 .modal-header {
@@ -1182,18 +1042,27 @@ select.form-control {
   font-size: var(--font-size-xl);
 }
 
-.modal-close {
+.modal-close,
+.modal-close-btn {
   background: none;
   border: none;
   font-size: var(--font-size-2xl);
   color: var(--color-text-secondary);
   cursor: pointer;
   padding: var(--space-4);
-  z-index: 1010;
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: var(--radius-sm);
+  transition: all var(--duration-fast) var(--ease-standard);
 }
 
-.modal-close:hover {
+.modal-close:hover,
+.modal-close-btn:hover {
   color: var(--color-text);
+  background: var(--color-secondary);
 }
 
 .modal-body {
@@ -1208,35 +1077,39 @@ select.form-control {
   border-top: 1px solid var(--color-border);
 }
 
-/* Break reminder modal */
+/* Break Modal - ESPECÍFICO PARA NOTIFICACIONES DE DESCANSO */
 .break-modal {
   position: fixed;
-  z-index: 1100;
-  left: 0;
   top: 0;
+  left: 0;
   width: 100%;
   height: 100%;
-  background-color: rgba(0, 0, 0, 0.7);
+  background: rgba(0, 0, 0, 0.7);
   display: flex;
   align-items: center;
   justify-content: center;
+  z-index: 2000;
 }
 
 .break-content {
   background: var(--color-surface);
+  padding: var(--space-32);
   border-radius: var(--radius-lg);
-  box-shadow: var(--shadow-lg);
-  width: 90%;
-  max-width: 400px;
-  padding: var(--space-24);
   text-align: center;
+  max-width: 400px;
+  box-shadow: var(--shadow-lg);
+}
+
+.break-content h3 {
+  color: var(--color-primary);
+  margin-bottom: var(--space-16);
 }
 
 .break-timer {
   font-size: var(--font-size-4xl);
   font-weight: var(--font-weight-bold);
   color: var(--color-primary);
-  margin: var(--space-16) 0;
+  margin: var(--space-20) 0;
 }
 
 /* Notifications */
@@ -1399,8 +1272,8 @@ textarea:focus-visible {
 /* Animation for smooth transitions */
 * {
   transition: background-color var(--duration-fast) var(--ease-standard),
-    border-color var(--duration-fast) var(--ease-standard),
-    color var(--duration-fast) var(--ease-standard);
+              border-color var(--duration-fast) var(--ease-standard),
+              color var(--duration-fast) var(--ease-standard);
 }
 
 /* Custom scrollbars */
@@ -1423,100 +1296,118 @@ textarea:focus-visible {
   background: var(--color-primary);
 }
 
-/* Adaptaciones para fibromialgia */
-.fibromyalgia-mode .main-content {
+/* CORRECCIONES ESPECÍFICAS PARA MODALES */
+
+/* Evitar duplicación de z-index y mejorar la gestión de capas */
+.modal-overlay {
+  z-index: 999;
+}
+
+.modal-content {
+  z-index: 1000;
+}
+
+.break-modal {
+  z-index: 2000;
+}
+
+/* Asegurar que los botones de cierre funcionen correctamente */
+.btn-close,
+.close-btn,
+[data-dismiss="modal"] {
+  background: none;
+  border: none;
   font-size: var(--font-size-lg);
-  line-height: 1.8;
-}
-
-.fibromyalgia-mode .btn,
-.fibromyalgia-mode .form-control {
-  padding: var(--space-12) var(--space-20);
-}
-
-.fibromyalgia-mode .sidebar__link {
-  padding: var(--space-16) var(--space-24);
-}
-
-.fibromyalgia-rest-reminder {
-  position: fixed;
-  bottom: var(--space-20);
-  right: var(--space-20);
-  background: var(--color-primary);
-  color: var(--color-btn-primary-text);
-  padding: var(--space-12) var(--space-16);
-  border-radius: var(--radius-base);
-  box-shadow: var(--shadow-md);
-  z-index: 900;
-  display: flex;
-  align-items: center;
-  gap: var(--space-8);
-}
-
-.fibromyalgia-rest-reminder button {
-  background: transparent;
-  border: 1px solid var(--color-btn-primary-text);
-  color: var(--color-btn-primary-text);
-  padding: var(--space-4) var(--space-8);
-  border-radius: var(--radius-sm);
+  color: var(--color-text-secondary);
   cursor: pointer;
+  padding: var(--space-8);
+  border-radius: var(--radius-sm);
+  transition: all var(--duration-fast) var(--ease-standard);
 }
 
-/* Mejoras para el editor de Markdown */
-.github-markdown-preview {
-  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
-  font-size: 16px;
-  line-height: 1.5;
-  word-wrap: break-word;
-  padding: 16px;
+.btn-close:hover,
+.close-btn:hover,
+[data-dismiss="modal"]:hover {
+  color: var(--color-text);
+  background: var(--color-secondary);
 }
 
-.github-markdown-preview h1,
-.github-markdown-preview h2 {
-  border-bottom: 1px solid var(--color-border);
-  padding-bottom: 0.3em;
+/* Prevenir scroll del body cuando hay modal abierto */
+body.modal-open {
+  overflow: hidden;
 }
 
-.github-markdown-preview code {
-  padding: 0.2em 0.4em;
-  margin: 0;
-  font-size: 85%;
-  background-color: var(--color-secondary);
-  border-radius: 3px;
+/* Mejorar la visibilidad de elementos interactivos */
+.clickable {
+  cursor: pointer;
+  transition: all var(--duration-fast) var(--ease-standard);
 }
 
-.github-markdown-preview pre {
-  padding: 16px;
-  overflow: auto;
-  font-size: 85%;
-  line-height: 1.45;
-  background-color: var(--color-secondary);
-  border-radius: 3px;
+.clickable:hover {
+  opacity: 0.8;
 }
 
-.github-markdown-preview pre code {
-  background-color: transparent;
-  padding: 0;
+/* Estados de progreso para tareas */
+.task-progress-indicator {
+  display: inline-block;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  margin-right: var(--space-8);
 }
 
-.github-markdown-preview table {
-  border-collapse: collapse;
-  width: 100%;
-  overflow: auto;
-  margin-bottom: 16px;
+.task-progress-indicator.completed {
+  background: var(--color-success);
 }
 
-.github-markdown-preview table th,
-.github-markdown-preview table td {
-  padding: 6px 13px;
-  border: 1px solid var(--color-border);
+.task-progress-indicator.in-progress {
+  background: var(--color-warning);
 }
 
-.github-markdown-preview table tr {
-  background-color: var(--color-surface);
-  border-top: 1px solid var(--color-border);
+.task-progress-indicator.pending {
+  background: var(--color-info);
 }
 
-.github-markdown-preview table tr:nth-child(2n) {
-  background-color: var(--color-secondary);
+/* Mejoras para accesibilidad en fibromialgia */
+.large-text {
+  font-size: var(--font-size-lg);
+  line-height: 1.6;
+}
+
+.high-contrast {
+  color: var(--color-text);
+  background: var(--color-surface);
+  border: 2px solid var(--color-primary);
+}
+
+.easy-click {
+  min-height: 44px;
+  min-width: 44px;
+  padding: var(--space-12) var(--space-16);
+}
+
+/* Animaciones suaves para evitar trigger de síntomas */
+.gentle-transition {
+  transition: all 400ms ease-in-out;
+}
+
+/* Indicadores de estado de salud */
+.health-level-1, .health-level-2 {
+  background: rgba(var(--color-error-rgb), 0.1);
+  border-left: 4px solid var(--color-error);
+}
+
+.health-level-3, .health-level-4, .health-level-5 {
+  background: rgba(var(--color-warning-rgb), 0.1);
+  border-left: 4px solid var(--color-warning);
+}
+
+.health-level-6, .health-level-7, .health-level-8 {
+  background: rgba(var(--color-info-rgb), 0.1);
+  border-left: 4px solid var(--color-info);
+}
+
+.health-level-9, .health-level-10 {
+  background: rgba(var(--color-success-rgb), 0.1);
+  border-left: 4px solid var(--color-success);
 }
